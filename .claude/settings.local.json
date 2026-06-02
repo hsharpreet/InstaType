@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(winget upgrade *)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(npm prefix *)",
+      "PowerShell(& \"C:\\\\Users\\\\hshar\\\\AppData\\\\Roaming\\\\npm\\\\claude.cmd\" --version)",
+      "Bash(git clone *)",
+      "Bash(not exist *)",
+      "WebFetch(domain:supabase.com)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(gh repo *)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:const-me.github.io)",
+      "WebFetch(domain:blogs.msdn.microsoft.com)",
+      "WebFetch(domain:batchloaf.wordpress.com)",
+      "WebFetch(domain:www.nuget.org)",
+      "WebFetch(domain:deepwiki.com)"
+    ]
+  }
+}

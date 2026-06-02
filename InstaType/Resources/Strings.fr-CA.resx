@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+
+  <data name="Overlay_Listening"><value>Écoute en cours…</value></data>
+  <data name="Overlay_Transcribing"><value>Transcription…</value></data>
+  <data name="Overlay_Done"><value>Terminé</value></data>
+  <data name="Overlay_Cancelled"><value>Annulé</value></data>
+  <data name="Overlay_PressEscToCancel"><value>Appuyez sur Échap pour annuler</value></data>
+
+  <data name="Tray_Settings"><value>Paramètres</value></data>
+  <data name="Tray_History"><value>Historique</value></data>
+  <data name="Tray_Pause"><value>Pause</value></data>
+  <data name="Tray_Resume"><value>Reprendre</value></data>
+  <data name="Tray_SignIn"><value>Se connecter</value></data>
+  <data name="Tray_SignOut"><value>Se déconnecter</value></data>
+  <data name="Tray_Quit"><value>Quitter InstaType</value></data>
+
+  <data name="Settings_Title"><value>Paramètres</value></data>
+  <data name="Settings_Hotkey"><value>Raccourci clavier</value></data>
+  <data name="Settings_WhisperModel"><value>Modèle Whisper</value></data>
+  <data name="Settings_Language"><value>Langue de transcription</value></data>
+  <data name="Settings_SilenceTimeout"><value>Délai de silence (secondes)</value></data>
+  <data name="Settings_ShowPreview"><value>Afficher l'aperçu avant l'injection</value></data>
+  <data name="Settings_LaunchAtStartup"><value>Lancer au démarrage de Windows</value></data>
+  <data name="Settings_Theme"><value>Thème</value></data>
+  <data name="Settings_UiLanguage"><value>Langue de l'application</value></data>
+  <data name="Settings_Apply"><value>Appliquer</value></data>
+  <data name="Settings_Cancel"><value>Annuler</value></data>
+  <data name="Settings_ResetDefaults"><value>Réinitialiser</value></data>
+
+  <data name="History_Title"><value>Historique des transcriptions</value></data>
+  <data name="History_Search"><value>Rechercher…</value></data>
+  <data name="History_Export"><value>Exporter en CSV</value></data>
+  <data name="History_Clear"><value>Effacer l'historique</value></data>
+  <data name="History_Empty"><value>Aucune transcription pour l'instant.</value></data>
+
+  <data name="Upgrade_CoreFeature"><value>Cette fonctionnalité nécessite un abonnement Core.</value></data>
+  <data name="Upgrade_AiProFeature"><value>Cette fonctionnalité nécessite un abonnement AI Pro.</value></data>
+  <data name="Upgrade_DailyLimit"><value>Vous avez atteint la limite quotidienne de 50 transcriptions. Passez à Core pour un accès illimité.</value></data>
+  <data name="Upgrade_LearnMore"><value>En savoir plus</value></data>
+
+  <data name="Error_MicrophoneDenied"><value>L'accès au microphone a été refusé. Veuillez l'autoriser dans les paramètres Windows.</value></data>
+  <data name="Error_ModelNotFound"><value>Modèle Whisper introuvable. Veuillez le télécharger depuis Paramètres → Modèles.</value></data>
+  <data name="Error_InjectionBlocked"><value>Impossible de saisir du texte dans cette fenêtre. Elle est peut-être exécutée en tant qu'administrateur.</value></data>
+  <data name="Error_AiFallback"><value>La réécriture IA a échoué — transcription originale utilisée.</value></data>
+
+</root>

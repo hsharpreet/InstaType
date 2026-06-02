@@ -1,0 +1,18 @@
+<wpfui:FluentWindow
+    x:Class="InstaType.Views.SettingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:wpfui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:vm="clr-namespace:InstaType.ViewModels"
+    Title="InstaType Settings"
+    Width="520" Height="600"
+    WindowStartupLocation="CenterScreen"
+    Background="{x:Null}"
+    ExtendsContentIntoTitleBar="True">
+
+    <!-- TODO (F-07): Add settings panels — hotkey, model, language, theme, startup, account -->
+    <Grid Margin="16">
+        <TextBlock Text="Settings — coming soon" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+
+</wpfui:FluentWindow>

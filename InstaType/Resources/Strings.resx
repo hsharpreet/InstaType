@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+
+  <!-- Overlay -->
+  <data name="Overlay_Listening"><value>Listening…</value></data>
+  <data name="Overlay_Transcribing"><value>Transcribing…</value></data>
+  <data name="Overlay_Done"><value>Done</value></data>
+  <data name="Overlay_Cancelled"><value>Cancelled</value></data>
+  <data name="Overlay_PressEscToCancel"><value>Press Esc to cancel</value></data>
+
+  <!-- Tray menu -->
+  <data name="Tray_Settings"><value>Settings</value></data>
+  <data name="Tray_History"><value>History</value></data>
+  <data name="Tray_Pause"><value>Pause</value></data>
+  <data name="Tray_Resume"><value>Resume</value></data>
+  <data name="Tray_SignIn"><value>Sign In</value></data>
+  <data name="Tray_SignOut"><value>Sign Out</value></data>
+  <data name="Tray_Quit"><value>Quit InstaType</value></data>
+
+  <!-- Settings -->
+  <data name="Settings_Title"><value>Settings</value></data>
+  <data name="Settings_Hotkey"><value>Trigger Hotkey</value></data>
+  <data name="Settings_WhisperModel"><value>Whisper Model</value></data>
+  <data name="Settings_Language"><value>Transcription Language</value></data>
+  <data name="Settings_SilenceTimeout"><value>Silence Timeout (seconds)</value></data>
+  <data name="Settings_ShowPreview"><value>Show preview before injecting</value></data>
+  <data name="Settings_LaunchAtStartup"><value>Launch at Windows startup</value></data>
+  <data name="Settings_Theme"><value>Theme</value></data>
+  <data name="Settings_UiLanguage"><value>App Language</value></data>
+  <data name="Settings_Apply"><value>Apply</value></data>
+  <data name="Settings_Cancel"><value>Cancel</value></data>
+  <data name="Settings_ResetDefaults"><value>Reset to Defaults</value></data>
+
+  <!-- History -->
+  <data name="History_Title"><value>Transcription History</value></data>
+  <data name="History_Search"><value>Search…</value></data>
+  <data name="History_Export"><value>Export CSV</value></data>
+  <data name="History_Clear"><value>Clear History</value></data>
+  <data name="History_Empty"><value>No transcriptions yet.</value></data>
+
+  <!-- Upgrade prompts -->
+  <data name="Upgrade_CoreFeature"><value>This feature requires a Core subscription.</value></data>
+  <data name="Upgrade_AiProFeature"><value>This feature requires an AI Pro subscription.</value></data>
+  <data name="Upgrade_DailyLimit"><value>You've reached today's 50 transcription limit. Upgrade to Core for unlimited.</value></data>
+  <data name="Upgrade_LearnMore"><value>Learn More</value></data>
+
+  <!-- Errors -->
+  <data name="Error_MicrophoneDenied"><value>Microphone access was denied. Please allow access in Windows Settings.</value></data>
+  <data name="Error_ModelNotFound"><value>Whisper model not found. Please download it from Settings → Models.</value></data>
+  <data name="Error_InjectionBlocked"><value>Could not type into that window. It may be running as Administrator.</value></data>
+  <data name="Error_AiFallback"><value>AI rewrite failed — using original transcription.</value></data>
+
+</root>
