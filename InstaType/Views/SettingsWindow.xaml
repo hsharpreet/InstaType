@@ -5,14 +5,90 @@
     xmlns:wpfui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:vm="clr-namespace:InstaType.ViewModels"
     Title="InstaType Settings"
-    Width="520" Height="600"
+    Width="480" Height="520"
     WindowStartupLocation="CenterScreen"
     Background="{x:Null}"
     ExtendsContentIntoTitleBar="True">
 
-    <!-- TODO (F-07): Add settings panels — hotkey, model, language, theme, startup, account -->
-    <Grid Margin="16">
-        <TextBlock Text="Settings — coming soon" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid Margin="24 48 24 24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>  <!-- Microphone -->
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="Auto"/>  <!-- Hotkey -->
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="Auto"/>  <!-- History -->
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="Auto"/>  <!-- Theme -->
+            <RowDefinition Height="*"/>     <!-- spacer -->
+            <RowDefinition Height="Auto"/>  <!-- Version -->
+        </Grid.RowDefinitions>
+
+        <!-- ── Microphone ── -->
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Microphone" FontWeight="SemiBold" FontSize="13" Margin="0 0 0 6"/>
+            <ComboBox x:Name="MicrophoneCombo"
+                      Width="300" HorizontalAlignment="Left"
+                      ToolTip="Select the audio input device used for recording"/>
+            <TextBlock Text="Populated from available devices on open."
+                       Foreground="Gray" FontSize="10" Margin="0 4 0 0"/>
+        </StackPanel>
+
+        <!-- ── Hotkey ── -->
+        <StackPanel Grid.Row="2">
+            <TextBlock Text="Hotkey" FontWeight="SemiBold" FontSize="13" Margin="0 0 0 6"/>
+            <Border Background="#10000000" CornerRadius="6" Padding="12 8"
+                    BorderBrush="#22000000" BorderThickness="1" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Trigger:" VerticalAlignment="Center" Margin="0 0 8 0"/>
+                    <Border Background="#CC1A1A2E" CornerRadius="4" Padding="8 4">
+                        <TextBlock Text="Double-tap Ctrl" Foreground="White" FontFamily="Consolas"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+            <TextBlock Text="Configurable hotkey coming in Core tier."
+                       Foreground="Gray" FontSize="10" Margin="0 4 0 0"/>
+        </StackPanel>
+
+        <!-- ── History ── -->
+        <StackPanel Grid.Row="4">
+            <TextBlock Text="Transcription History" FontWeight="SemiBold" FontSize="13" Margin="0 0 0 6"/>
+            <CheckBox x:Name="HistoryToggle"
+                      Content="Save transcription history locally"
+                      IsChecked="{Binding ShowInjectionPreview, Mode=TwoWay}"
+                      Margin="0 0 0 8"/>
+            <Button x:Name="ClearHistoryBtn"
+                    Content="Clear History"
+                    Width="120" HorizontalAlignment="Left"
+                    Click="ClearHistoryBtn_Click"
+                    ToolTip="Delete all saved transcriptions"/>
+        </StackPanel>
+
+        <!-- ── Theme ── -->
+        <StackPanel Grid.Row="6">
+            <TextBlock Text="Theme" FontWeight="SemiBold" FontSize="13" Margin="0 0 0 6"/>
+            <StackPanel Orientation="Horizontal">
+                <RadioButton x:Name="ThemeSystem"
+                             Content="Follow System"
+                             GroupName="Theme"
+                             IsChecked="True"
+                             Margin="0 0 16 0"/>
+                <RadioButton x:Name="ThemeLight"
+                             Content="Always Light"
+                             GroupName="Theme"
+                             Margin="0 0 16 0"/>
+                <RadioButton x:Name="ThemeDark"
+                             Content="Always Dark"
+                             GroupName="Theme"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- ── Version label ── -->
+        <TextBlock Grid.Row="8"
+                   x:Name="VersionLabel"
+                   Foreground="Gray"
+                   FontSize="10"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom"/>
     </Grid>
 
 </wpfui:FluentWindow>

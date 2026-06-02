@@ -1,50 +1,62 @@
 using InstaType.Services;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
+using System.Windows.Threading;
 
 namespace InstaType.Infrastructure.Win32;
 
 /// <summary>
-/// Detects double-tap Left/Right Ctrl via RegisterHotKey on a hidden HwndSource message window.
-/// Two WM_HOTKEY messages arriving within <see cref="DoubleTapMs"/> fire
-/// <see cref="HotkeyTriggered"/> on the UI thread. No global keyboard hook is installed.
+/// Implements <see cref="IHotkeyService"/> using a WH_KEYBOARD_LL system-wide keyboard hook.
+/// Runs on a dedicated STA thread with an HwndSource message window and its own Dispatcher.
+/// Double-tap detection: two separate Ctrl key-down events within 400 ms fire
+/// <see cref="HotkeyTriggered"/> on the UI thread.
+/// Auto-repeat is suppressed via a <c>_ctrlDown</c> state flag.
 /// </summary>
 internal sealed class HotkeyService : IHotkeyService
 {
     public event EventHandler? HotkeyTriggered;
     public bool IsActive { get; private set; }
 
-    private const int  WM_HOTKEY    = 0x0312;
-    private const uint MOD_NOREPEAT = 0x4000;   // suppress auto-repeat; no modifier requirement
-    private const uint VK_LCONTROL  = 0xA2;
-    private const uint VK_RCONTROL  = 0xA3;
-    private const int  ID_LCTRL     = 9001;
-    private const int  ID_RCTRL     = 9002;
-    private const long DoubleTapMs  = 400;
+    private const long DoubleTapMs = 400;
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+    private Thread? _hookThread;
+    private Dispatcher? _hookDispatcher;
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+    // Held reference prevents the GC collecting the delegate while hook is live.
+    private NativeMethods.LowLevelKeyboardProc? _hookProc;
+    private volatile nint _hookHandle;
 
-    private HwndSource? _hwndSource;
-    private long _lastTapTick;          // TickCount64 of most recent Ctrl WM_HOTKEY
+    private bool _ctrlDown;          // true while Ctrl is physically held — suppresses auto-repeat
+    private long _lastCtrlTick;      // Environment.TickCount64 of the most recent fresh Ctrl press
     private bool _disposed;
+
+    // ── Public API ───────────────────────────────────────────────────────────
 
     public void Start()
     {
         if (IsActive || _disposed) return;
-        System.Windows.Application.Current.Dispatcher.Invoke(CreateMessageWindow);
-        IsActive = true;
+
+        var ready = new ManualResetEventSlim(false);
+
+        _hookThread = new Thread(() => HookThreadMain(ready))
+        {
+            IsBackground = true,
+            Name = "InstaType-HotkeyHook"
+        };
+        _hookThread.SetApartmentState(ApartmentState.STA);
+        _hookThread.Start();
+
+        // Block until the hook is installed so callers know it's active on return.
+        ready.Wait();
     }
 
     public void Stop()
     {
         if (!IsActive) return;
-        IsActive = false;
-        System.Windows.Application.Current?.Dispatcher.Invoke(DestroyMessageWindow);
-        _lastTapTick = 0;
+        var disp = _hookDispatcher;
+        _hookDispatcher = null;
+        if (disp is not null && !disp.HasShutdownStarted)
+            disp.BeginInvokeShutdown(DispatcherPriority.Normal);
     }
 
     public void Dispose()
@@ -54,61 +66,84 @@ internal sealed class HotkeyService : IHotkeyService
         Stop();
     }
 
-    // ── Private helpers ──────────────────────────────────────────────────────
+    // ── Hook thread ──────────────────────────────────────────────────────────
 
-    private void CreateMessageWindow()
+    private void HookThreadMain(ManualResetEventSlim ready)
     {
-        // WS_POPUP (0x80000000): frameless popup — no taskbar entry, no caption.
-        // No WS_VISIBLE: window stays hidden. Positioned far offscreen for safety.
-        var p = new HwndSourceParameters("InstaTypeHotkey")
+        _hookDispatcher = Dispatcher.CurrentDispatcher;
+
+        // HwndSource creates a hidden Win32 window on this thread, providing the
+        // message pump that WH_KEYBOARD_LL requires to deliver hook callbacks.
+        var p = new HwndSourceParameters("InstaTypeHook")
         {
-            Width       = 1,
-            Height      = 1,
+            Width       = 0,
+            Height      = 0,
             PositionX   = -32000,
             PositionY   = -32000,
-            WindowStyle = unchecked((int)0x80000000), // WS_POPUP
+            WindowStyle = unchecked((int)0x80000000), // WS_POPUP — no caption, no taskbar
         };
+        using var hwndSource = new HwndSource(p);
 
-        _hwndSource = new HwndSource(p);
-        _hwndSource.AddHook(WndProc);
+        _hookProc = HookCallback;
+        nint hMod = NativeMethods.GetModuleHandle(null);
+        _hookHandle = NativeMethods.SetWindowsHookEx(NativeMethods.WH_KEYBOARD_LL, _hookProc, hMod, 0);
 
-        IntPtr hwnd = _hwndSource.Handle;
-        RegisterHotKey(hwnd, ID_LCTRL, MOD_NOREPEAT, VK_LCONTROL);
-        RegisterHotKey(hwnd, ID_RCTRL, MOD_NOREPEAT, VK_RCONTROL);
+        IsActive = _hookHandle != 0;
+        ready.Set(); // unblock Start()
+
+        if (_hookHandle != 0)
+            Dispatcher.Run(); // blocks until BeginInvokeShutdown()
+
+        // Cleanup after message loop exits.
+        if (_hookHandle != 0)
+        {
+            NativeMethods.UnhookWindowsHookEx(_hookHandle);
+            _hookHandle = 0;
+        }
+        IsActive = false;
     }
 
-    private void DestroyMessageWindow()
+    // ── Hook callback (runs on hook thread) ──────────────────────────────────
+
+    private nint HookCallback(int nCode, nint wParam, nint lParam)
     {
-        if (_hwndSource is null) return;
-        IntPtr hwnd = _hwndSource.Handle;
-        UnregisterHotKey(hwnd, ID_LCTRL);
-        UnregisterHotKey(hwnd, ID_RCTRL);
-        _hwndSource.RemoveHook(WndProc);
-        _hwndSource.Dispose();
-        _hwndSource = null;
-    }
-
-    private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-    {
-        if (msg != WM_HOTKEY) return IntPtr.Zero;
-
-        int id = wParam.ToInt32();
-        if (id != ID_LCTRL && id != ID_RCTRL) return IntPtr.Zero;
-
-        long now     = Environment.TickCount64;
-        long elapsed = _lastTapTick == 0 ? long.MaxValue : now - _lastTapTick;
-
-        if (elapsed <= DoubleTapMs)
+        if (nCode >= 0)
         {
-            _lastTapTick = 0;   // reset so a triple-tap doesn't fire a second time
-            handled = true;
-            HotkeyTriggered?.Invoke(this, EventArgs.Empty);
-        }
-        else
-        {
-            _lastTapTick = now;
+            var kbs = Marshal.PtrToStructure<NativeMethods.KBDLLHOOKSTRUCT>(lParam);
+            bool isCtrl = kbs.vkCode == (uint)NativeMethods.VK_LCONTROL
+                       || kbs.vkCode == (uint)NativeMethods.VK_RCONTROL;
+
+            if (isCtrl)
+            {
+                int msg = (int)wParam;
+
+                if (msg == NativeMethods.WM_KEYDOWN)
+                {
+                    if (!_ctrlDown) // ignore auto-repeat
+                    {
+                        _ctrlDown = true;
+                        long now     = Environment.TickCount64;
+                        long elapsed = _lastCtrlTick == 0 ? long.MaxValue : now - _lastCtrlTick;
+
+                        if (elapsed <= DoubleTapMs)
+                        {
+                            _lastCtrlTick = 0; // reset so triple-tap doesn't fire again
+                            System.Windows.Application.Current?.Dispatcher.BeginInvoke(
+                                () => HotkeyTriggered?.Invoke(this, EventArgs.Empty));
+                        }
+                        else
+                        {
+                            _lastCtrlTick = now;
+                        }
+                    }
+                }
+                else if (msg == NativeMethods.WM_KEYUP)
+                {
+                    _ctrlDown = false;
+                }
+            }
         }
 
-        return IntPtr.Zero;
+        return NativeMethods.CallNextHookEx(0, nCode, wParam, lParam);
     }
 }

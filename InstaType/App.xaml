@@ -4,8 +4,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!-- WPF-UI base theme (overridden at runtime by IThemeService) -->
-                <ResourceDictionary Source="Themes/Light.xaml"/>
+                <!-- Default dark theme; swapped at runtime by ApplyTheme() -->
+                <ResourceDictionary Source="Themes/Dark.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

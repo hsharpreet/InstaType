@@ -1,24 +1,24 @@
 namespace InstaType.Services;
 
 /// <summary>
-/// Wraps the Const-me/Whisper COM engine (via WhisperNet) for on-device speech-to-text.
+/// Wraps the Whisper on-device speech-to-text engine.
+/// Accepts raw 16 kHz mono float[] PCM audio and returns a transcript string.
 /// Audio never leaves the device on Free and Core tiers.
 /// Model must be loaded before transcription can begin.
 /// </summary>
 public interface ITranscriptionService : IDisposable
 {
     /// <summary>
-    /// Loads the specified GGML model file into GPU/CPU memory.
-    /// Should be called once at startup. Model files live in %LOCALAPPDATA%\InstaType\Models\.
+    /// Loads the specified GGML model file from %LOCALAPPDATA%\InstaType\Models\.
+    /// Downloads automatically if the file is not present.
     /// </summary>
-    /// <param name="modelFileName">Filename only, e.g. "ggml-medium.bin".</param>
     Task LoadModelAsync(string modelFileName, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Transcribes raw PCM audio bytes to text.
-    /// Returns the raw Whisper output before any AI post-processing.
+    /// Transcribes 16 kHz mono float[] PCM audio to text.
+    /// Returns the raw Whisper output. Returns empty string on error.
     /// </summary>
-    Task<string> TranscribeAsync(byte[] audioData, string language, CancellationToken cancellationToken = default);
+    Task<string> TranscribeAsync(float[] audio, string language = "en", CancellationToken cancellationToken = default);
 
     /// <summary>Whether a model is currently loaded and ready.</summary>
     bool IsModelLoaded { get; }

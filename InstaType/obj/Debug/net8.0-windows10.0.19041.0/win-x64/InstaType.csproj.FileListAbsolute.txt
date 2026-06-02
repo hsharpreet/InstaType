@@ -94,3 +94,10 @@ C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\obj\Debug\net8.0-windows1
 C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\obj\Debug\net8.0-windows10.0.19041.0\win-x64\InstaType.pdb
 C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\obj\Debug\net8.0-windows10.0.19041.0\win-x64\InstaType.genruntimeconfig.cache
 C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\obj\Debug\net8.0-windows10.0.19041.0\win-x64\ref\InstaType.dll
+C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\bin\Debug\net8.0-windows10.0.19041.0\win-x64\NAudio.dll
+C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\bin\Debug\net8.0-windows10.0.19041.0\win-x64\NAudio.Asio.dll
+C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\bin\Debug\net8.0-windows10.0.19041.0\win-x64\NAudio.Core.dll
+C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\bin\Debug\net8.0-windows10.0.19041.0\win-x64\NAudio.Midi.dll
+C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\bin\Debug\net8.0-windows10.0.19041.0\win-x64\NAudio.Wasapi.dll
+C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\bin\Debug\net8.0-windows10.0.19041.0\win-x64\NAudio.WinForms.dll
+C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\bin\Debug\net8.0-windows10.0.19041.0\win-x64\NAudio.WinMM.dll

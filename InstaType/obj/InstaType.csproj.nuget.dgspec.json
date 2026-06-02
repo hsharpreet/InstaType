@@ -61,6 +61,10 @@
               "target": "Package",
               "version": "[8.*, )"
             },
+            "NAudio": {
+              "target": "Package",
+              "version": "[2.2.1, )"
+            },
             "Supabase": {
               "target": "Package",
               "version": "[1.1.1, )"
@@ -98,7 +102,7 @@
             "Microsoft.Windows.SDK.NET.Ref.Windows": {
               "privateAssets": "all"
             },
-            "Microsoft.WindowsDesktop.App.WPF": {
+            "Microsoft.WindowsDesktop.App": {
               "privateAssets": "none"
             }
           },

@@ -46,6 +46,23 @@ public sealed class AppSettings
 
     /// <summary>Whether InstaType should launch when Windows starts.</summary>
     public bool LaunchAtStartup { get; set; } = false;
+
+    // ── Overlay ──────────────────────────────────────────────────────────────
+
+    /// <summary>NAudio device index of the selected microphone.</summary>
+    public int SelectedMicDeviceId { get; set; } = 0;
+
+    /// <summary>Pixel X position of the overlay. -1 = auto-centre on primary screen.</summary>
+    public double OverlayLeft { get; set; } = -1;
+
+    /// <summary>Pixel Y position of the overlay.</summary>
+    public double OverlayTop { get; set; } = 12;
+
+    /// <summary>Whether the overlay stays above all other windows.</summary>
+    public bool AlwaysOnTop { get; set; } = true;
+
+    /// <summary>Whether transcriptions are written to the local SQLite history database.</summary>
+    public bool SaveHistory { get; set; } = true;
 }
 
 /// <summary>AI post-processing rewrite modes available to AI Pro subscribers.</summary>

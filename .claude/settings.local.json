@@ -18,7 +18,20 @@
       "WebFetch(domain:blogs.msdn.microsoft.com)",
       "WebFetch(domain:batchloaf.wordpress.com)",
       "WebFetch(domain:www.nuget.org)",
-      "WebFetch(domain:deepwiki.com)"
+      "WebFetch(domain:deepwiki.com)",
+      "Bash(dotnet build *)",
+      "Bash(Start-Process -FilePath \"InstaType\\\\bin\\\\Debug\\\\net8.0-windows10.0.19041.0\\\\win-x64\\\\InstaType.exe\" -WindowStyle Normal)",
+      "Bash(Start-Sleep -Seconds 3)",
+      "PowerShell(Start-Process \"C:\\\\Users\\\\hshar\\\\OneDrive\\\\ClaudeCode\\\\InstaType\\\\InstaType\\\\bin\\\\Debug\\\\net8.0-windows10.0.19041.0\\\\win-x64\\\\InstaType.exe\"; Start-Sleep -Seconds 5; Write-Output \"App launched\")",
+      "PowerShell(Stop-Process *)",
+      "Bash(taskkill /F /IM InstaType.exe)",
+      "Bash('C:\\\\Users\\\\hshar\\\\OneDrive\\\\ClaudeCode\\\\InstaType\\\\InstaType\\\\bin\\\\Debug\\\\net8.0-windows10.0.19041.0\\\\win-x64\\\\InstaType.exe')",
+      "Bash(echo \"PID=$!\")",
+      "Bash(powershell *)",
+      "Bash(C:/Users/hshar/OneDrive/ClaudeCode/InstaType/InstaType/bin/Debug/net8.0-windows10.0.19041.0/win-x64/InstaType.exe)",
+      "Bash(echo \"Launched PID=$!\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
