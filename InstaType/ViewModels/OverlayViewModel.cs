@@ -10,10 +10,38 @@ namespace InstaType.ViewModels;
 /// </summary>
 public sealed class OverlayViewModel : ViewModelBase
 {
+    private readonly IHotkeyService _hotkeyService;
+
+    private bool _isListening;
+    private string _statusText = "Idle";
     private OverlayState _state = OverlayState.Listening;
     private float _waveformAmplitude;
     private string _previewText = string.Empty;
     private bool _showPreview;
+
+    public OverlayViewModel(IHotkeyService hotkeyService)
+    {
+        _hotkeyService = hotkeyService;
+        _hotkeyService.HotkeyTriggered += OnHotkeyTriggered;
+    }
+
+    /// <summary>True while the microphone is active and waveform should animate.</summary>
+    public bool IsListening
+    {
+        get => _isListening;
+        private set
+        {
+            if (SetProperty(ref _isListening, value))
+                StatusText = value ? "Listening…" : "Idle";
+        }
+    }
+
+    /// <summary>Human-readable status label shown below the waveform bars.</summary>
+    public string StatusText
+    {
+        get => _statusText;
+        private set => SetProperty(ref _statusText, value);
+    }
 
     /// <summary>Current display state of the overlay.</summary>
     public OverlayState State
@@ -43,8 +71,14 @@ public sealed class OverlayViewModel : ViewModelBase
         set => SetProperty(ref _showPreview, value);
     }
 
-    // TODO (F-05): Wire up IAudioCaptureService.WaveformSample, state transitions,
-    // and ITextInjectionService.Inject call after preview confirmation or timeout.
+    /// <summary>Stops listening — called by the mute button.</summary>
+    public void ToggleMute()
+    {
+        if (IsListening) IsListening = false;
+    }
+
+    private void OnHotkeyTriggered(object? sender, EventArgs e)
+        => IsListening = !IsListening;
 }
 
 /// <summary>Display states of the overlay window.</summary>

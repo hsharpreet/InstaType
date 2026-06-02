@@ -1,21 +1,169 @@
-<wpfui:FluentWindow
+<Window
     x:Class="InstaType.Views.OverlayWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:wpfui="http://schemas.lepo.co/wpfui/2022/xaml"
-    xmlns:vm="clr-namespace:InstaType.ViewModels"
     Title="InstaType"
-    Width="340" Height="80"
+    Width="300" Height="56"
     WindowStyle="None"
-    ResizeMode="NoResize"
-    ShowInTaskbar="False"
+    AllowsTransparency="True"
+    Background="Transparent"
     Topmost="True"
-    Background="{x:Null}"
-    ExtendsContentIntoTitleBar="True">
+    ShowInTaskbar="False"
+    ResizeMode="NoResize">
 
-    <!-- TODO (F-05): Add waveform visualiser, state-based content, Mica backdrop wiring -->
-    <Grid>
-        <TextBlock Text="InstaType Overlay" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-    </Grid>
+    <Window.Resources>
+        <!--
+            RepeatBehavior="Forever" is on each DoubleAnimation, NOT the Storyboard.
+            Each bar has a slightly different Duration, so after a few cycles they drift
+            into independent phases — giving an organic, ever-varying waveform.
+            BeginTime provides the initial stagger on first play.
+        -->
+        <Storyboard x:Key="WaveAnim">
+            <DoubleAnimation Storyboard.TargetName="Bar1Scale" Storyboard.TargetProperty="ScaleY"
+                             From="0.15" To="1.0" Duration="0:0:0.40"
+                             AutoReverse="True" RepeatBehavior="Forever" BeginTime="0:0:0.00">
+                <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Bar2Scale" Storyboard.TargetProperty="ScaleY"
+                             From="0.15" To="1.0" Duration="0:0:0.48"
+                             AutoReverse="True" RepeatBehavior="Forever" BeginTime="0:0:0.10">
+                <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Bar3Scale" Storyboard.TargetProperty="ScaleY"
+                             From="0.15" To="1.0" Duration="0:0:0.36"
+                             AutoReverse="True" RepeatBehavior="Forever" BeginTime="0:0:0.05">
+                <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Bar4Scale" Storyboard.TargetProperty="ScaleY"
+                             From="0.15" To="1.0" Duration="0:0:0.44"
+                             AutoReverse="True" RepeatBehavior="Forever" BeginTime="0:0:0.15">
+                <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Bar5Scale" Storyboard.TargetProperty="ScaleY"
+                             From="0.15" To="1.0" Duration="0:0:0.38"
+                             AutoReverse="True" RepeatBehavior="Forever" BeginTime="0:0:0.08">
+                <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+    </Window.Resources>
 
-</wpfui:FluentWindow>
+    <!-- Pill shape: CornerRadius=28, Height=56 → perfect semi-circle caps -->
+    <Border CornerRadius="28" Background="#CC1A1A2E">
+        <Grid Margin="14 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>   <!-- mic icon -->
+                <ColumnDefinition Width="*"/>       <!-- waveform + status -->
+                <ColumnDefinition Width="Auto"/>   <!-- mute button -->
+            </Grid.ColumnDefinitions>
+
+            <!-- ── Microphone icon ── -->
+            <TextBlock Grid.Column="0"
+                       Text="🎤"
+                       FontSize="18"
+                       FontFamily="Segoe UI Emoji"
+                       VerticalAlignment="Center"
+                       Margin="0 0 10 0"/>
+
+            <!-- ── Center: waveform bars + status label ── -->
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+
+                <!-- Bar container: 26 px tall, bars bottom-aligned and scale upward -->
+                <Grid Height="26" ClipToBounds="False">
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Center">
+
+                        <!-- Heights form a bell curve (12 · 18 · 24 · 18 · 12).
+                             RenderTransformOrigin="0.5,1" anchors each bar at its
+                             bottom-centre, so ScaleY grows upward. -->
+
+                        <Rectangle x:Name="Bar1" Width="3" Height="12"
+                                   Fill="#B4E4FF" RadiusX="1.5" RadiusY="1.5"
+                                   VerticalAlignment="Bottom" Margin="2 0"
+                                   RenderTransformOrigin="0.5,1">
+                            <Rectangle.RenderTransform>
+                                <ScaleTransform x:Name="Bar1Scale" ScaleY="0.15"/>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+
+                        <Rectangle x:Name="Bar2" Width="3" Height="18"
+                                   Fill="#B4E4FF" RadiusX="1.5" RadiusY="1.5"
+                                   VerticalAlignment="Bottom" Margin="2 0"
+                                   RenderTransformOrigin="0.5,1">
+                            <Rectangle.RenderTransform>
+                                <ScaleTransform x:Name="Bar2Scale" ScaleY="0.15"/>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+
+                        <Rectangle x:Name="Bar3" Width="3" Height="24"
+                                   Fill="#B4E4FF" RadiusX="1.5" RadiusY="1.5"
+                                   VerticalAlignment="Bottom" Margin="2 0"
+                                   RenderTransformOrigin="0.5,1">
+                            <Rectangle.RenderTransform>
+                                <ScaleTransform x:Name="Bar3Scale" ScaleY="0.15"/>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+
+                        <Rectangle x:Name="Bar4" Width="3" Height="18"
+                                   Fill="#B4E4FF" RadiusX="1.5" RadiusY="1.5"
+                                   VerticalAlignment="Bottom" Margin="2 0"
+                                   RenderTransformOrigin="0.5,1">
+                            <Rectangle.RenderTransform>
+                                <ScaleTransform x:Name="Bar4Scale" ScaleY="0.15"/>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+
+                        <Rectangle x:Name="Bar5" Width="3" Height="12"
+                                   Fill="#B4E4FF" RadiusX="1.5" RadiusY="1.5"
+                                   VerticalAlignment="Bottom" Margin="2 0"
+                                   RenderTransformOrigin="0.5,1">
+                            <Rectangle.RenderTransform>
+                                <ScaleTransform x:Name="Bar5Scale" ScaleY="0.15"/>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+
+                    </StackPanel>
+                </Grid>
+
+                <!-- Status text below bars -->
+                <TextBlock Text="{Binding StatusText}"
+                           Foreground="#99FFFFFF"
+                           FontSize="10"
+                           FontFamily="Segoe UI"
+                           HorizontalAlignment="Center"
+                           Margin="0 2 0 0"/>
+            </StackPanel>
+
+            <!-- ── Mute button: small circle on right edge ── -->
+            <Button x:Name="MuteButton"
+                    Grid.Column="2"
+                    Width="28" Height="28"
+                    VerticalAlignment="Center"
+                    Cursor="Hand"
+                    Click="MuteButton_Click"
+                    ToolTip="Stop listening">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" CornerRadius="14" Background="#33FFFFFF">
+                            <TextBlock Text="🔇"
+                                       FontSize="12"
+                                       FontFamily="Segoe UI Emoji"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#55FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#77FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+        </Grid>
+    </Border>
+
+</Window>
