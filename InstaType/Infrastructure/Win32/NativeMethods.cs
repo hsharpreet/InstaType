@@ -70,11 +70,12 @@ internal static class NativeMethods
         public nint dwExtraInfo;
     }
 
+    // On 64-bit: type=4 bytes, 4 bytes implicit padding, union at offset 8.
     [StructLayout(LayoutKind.Explicit)]
     internal struct INPUT
     {
         [FieldOffset(0)] public uint type;
-        [FieldOffset(4)] public KEYBDINPUT ki;
+        [FieldOffset(8)] public KEYBDINPUT ki;
     }
 
     [StructLayout(LayoutKind.Sequential)]

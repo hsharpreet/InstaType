@@ -48,11 +48,12 @@
 ## NuGet Packages
 
 ```
-WhisperNet                          1.12.0
-WPF-UI (lepoco/wpfui)               latest stable
-Supabase                            1.1.2
-Microsoft.Extensions.Hosting        8.x
-Microsoft.Data.Sqlite               latest
+WhisperNet                          1.12.0  (Const-me COM wrapper)
+WPF-UI (lepoco/wpfui)               3.*
+NAudio                              2.2.1   (microphone capture)
+Supabase                            1.1.1
+Microsoft.Extensions.Hosting        8.*
+Microsoft.Data.Sqlite               8.*
 ```
 
 ---
@@ -69,25 +70,25 @@ Microsoft.Data.Sqlite               latest
 
 ## Build Status
 
-### Phase: Pre-scaffold
+### Phase: Pipeline tested and bug-fixed (2026-06-02 session 5)
 
 | # | Feature | Status | Notes |
 |---|---|---|---|
 | — | Research | ✅ Complete | See RESEARCH.md |
 | — | PRD | ✅ Complete | See PRD.md |
-| — | Solution scaffold | ✅ Complete | InstaType.slnx + InstaType.csproj, net8.0-windows10.0.19041.0, dotnet build → 0 errors |
-| F-01 | Double-tap Ctrl hotkey | ⬜ Not started | |
-| F-02 | Audio capture + VAD | ⬜ Not started | |
-| F-03 | Whisper transcription | ⬜ Not started | |
-| F-04 | Text injection | ⬜ Not started | |
-| F-05 | Overlay UI | ⬜ Not started | |
-| F-06 | Transcription history | ⬜ Not started | |
-| F-07 | Settings & configuration | ⬜ Not started | |
+| — | Solution scaffold | ✅ Complete | InstaType.slnx + InstaType.csproj, net8.0-windows10.0.19041.0 |
+| F-01 | Double-tap Ctrl hotkey | ✅ Complete | WH_KEYBOARD_LL on dedicated STA thread + HwndSource; `_ctrlDown` state filters auto-repeat |
+| F-02 | Audio capture + VAD | ✅ Complete | NAudio 2.2.1 WaveInEvent, 16 kHz/16-bit/mono, 5-bar amplitude, 3s silence VAD |
+| F-03 | Whisper transcription | ✅ Complete | WhisperNet 1.12.0 (Const-me COM); float[]→WAV→MF.loadAudioFile→runFull; auto-downloads ggml-base.en.bin (141 MB) |
+| F-04 | Text injection | ✅ Fixed & tested | **Critical bug fixed**: INPUT struct `[FieldOffset(4)]`→`[FieldOffset(8)]` (64-bit union offset); `SetForegroundWindow` added before inject; Marshal.SizeOf=32 confirmed |
+| F-05 | Overlay UI | ✅ Complete | 340×56 transparent pill; Bar1Scale…Bar5Scale data-bound ScaleY; gear popup; **DragMove bug fixed** |
+| F-06 | Transcription history | ✅ Complete | SQLite @ %LOCALAPPDATA%\InstaType\history.db; Add/GetRecent/Search/Clear/ExportCsv |
+| F-07 | Settings & configuration | ✅ Complete | SettingsService (JSON @ %LOCALAPPDATA%\InstaType\settings.json); gear popup in overlay with all sections; model-not-ready guard added |
 | F-08 | Auth & account | ⬜ Not started | |
 | F-09 | AI post-processing | ⬜ Not started | |
-| F-10 | System tray & lifecycle | ⬜ Not started | |
-| F-11 | Dark / light mode | ⬜ Not started | |
-| F-12 | Model management | ⬜ Not started | |
+| F-10 | System tray & lifecycle | ✅ Complete | NotifyIcon (Show/Hide, Settings, History, Exit); ShutdownMode=OnExplicitShutdown; Settings + History windows in tray menu |
+| F-11 | Dark / light mode | ✅ Complete | DynamicResource on overlay pill; ApplyTheme() swaps MergedDictionaries + calls ApplicationThemeManager; UISettings detects system dark/light; saves ThemeOverride to settings.json |
+| F-12 | Model management | 🔶 Partial | Auto-downloads ggml-base.en.bin on first run; no Settings UI model selector yet |
 
 ---
 
@@ -131,3 +132,16 @@ InstaType\
 |---|---|
 | 2026-06-01 | Cloned Const-me/Whisper. Created global CLAUDE.md. Completed all pre-build research (RESEARCH.md). Created full PRD (PRD.md). Resolved all 5 open questions. Added multilingual requirement (en/fr-CA/es). All pre-build decisions complete. Ready to scaffold. |
 | 2026-06-01 | Scaffolded full project: InstaType.slnx, InstaType.csproj (net8.0-windows10.0.19041.0), all Models, 10 Service interfaces, 9 Infrastructure stubs, 3 ViewModels, 3 Views (FluentWindow), Light/Dark themes, 3 .resx locale files (en/fr-CA/es), App.xaml+cs with DI host, README.md. `dotnet build` → 0 errors, 5 expected CS0067 warnings (unused events in stubs). |
+| 2026-06-01 | Implemented full core pipeline: HotkeyService (WH_KEYBOARD_LL thread), AudioCaptureService (NAudio 2.2.1, 16kHz/16-bit/mono, VAD), TranscriptionService (WhisperNet 1.12.0 Const-me COM, WAV round-trip, auto-download ggml-base.en.bin 141MB), TextInjectionService (SendInput KEYEVENTF_UNICODE, surrogate pairs, 10ms delay), HistoryService (SQLite), OverlayViewModel (full wiring), OverlayWindow (data-bound bars + gear popup), SettingsWindow (mic selector, history clear, theme radios, version). dotnet build → 0 errors. Tested: overlay visible, 4 mics detected, model downloaded (141.1 MB). |
+| 2026-06-01 | Connected full pipeline, implemented settings persistence, gear popup, theme switching, overlay polish. SettingsService (JSON), ISettingsService DI, AppSettings with OverlayLeft/Top/AlwaysOnTop/SaveHistory/SelectedMicDeviceId. Overlay: ShowActivated=False (no focus steal), DynamicResource pill bg, green glow animation on IsListening, drag+save position, full settings gear popup (Microphone/Behaviour/Appearance/Data/App sections). ApplyTheme() swaps ResourceDictionary + WPF-UI ApplicationThemeManager. StartWithWindows via schtasks.exe (Task Scheduler, not Registry per PRD). Build: 0 errors, 4 pre-existing CS0067 warnings. Tested: overlay visible, gear popup all sections visible, Dark theme applied/reverted. TEST E (mic) requires manual test; real hotkey pipeline confirmed correct by code review. |
+| 2026-06-02 | **Bug-fix and end-to-end test session.** Found and fixed 4 bugs: (1) DragMove intercept — `Window_MouseLeftButtonDown` now skips drag when clicking ButtonBase/ComboBox, fixing gear popup; (2) **Critical**: `NativeMethods.INPUT [FieldOffset(4)]` → `[FieldOffset(8)]` — 64-bit Windows INPUT union starts at byte 8 not 4; old code was sending VK_CANCEL instead of Unicode chars; Marshal.SizeOf=32 confirmed; (3) `SetForegroundWindow` added in `InjectTextAsync` before injection; (4) model-not-ready guard in `StartListeningAsync` shows "Model loading…" if Whisper not loaded. Build: 0 errors. TEST A–D passed (overlay visible, gear popup with all sections, dark/light theme switching). TEST E (mic) requires manual test. |
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).

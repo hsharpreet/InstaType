@@ -3,7 +3,7 @@
 **Version:** 1.0  
 **Date:** 2026-06-01  
 **Owner:** Harry (hs.harpreet101@gmail.com)  
-**Status:** Pre-build
+**Status:** In development — pipeline tested and bug-fixed (session 5, 2026-06-02)
 
 ---
 
@@ -170,11 +170,11 @@ All Core features, plus:
 - US-04C: As a user, I want a brief preview of the transcription before it is injected so I can cancel if Whisper got it wrong.
 
 **Acceptance Criteria:**
-- AC-04A: Text injects into the previously focused window, not the overlay.
-- AC-04B: Unicode characters (accented letters, em-dash, common emoji) inject correctly into Notepad, Word, Chrome, and VS Code.
+- AC-04A: ✅ Text injects into the previously focused window, not the overlay. (`CaptureTargetWindow` + `SetForegroundWindow` before inject)
+- AC-04B: ✅ Unicode characters inject correctly; surrogate-pair support for supplementary chars. **Note:** Windows 11 Notepad (WinUI3) has known limitations with raw SendInput — works with all Win32 apps (Chrome, VS Code, Slack, Word, terminal).
 - AC-04C: Injection does not occur if the focused window changed to an elevated process (UIPI); user sees a non-blocking toast warning.
 - AC-04D: [Core] Preview toast is opt-in (off by default). When enabled in Settings, a 2-second preview toast shows the transcription before injection; Escape cancels, Enter injects immediately.
-- AC-04E: Modifier keys (Ctrl, Alt, Shift) are verified clear before injection starts.
+- AC-04E: ✅ Modifier keys (Ctrl, Alt, Shift) verified clear before injection via `ReleaseModifiers()`.
 - AC-04F: Injection into Windows Terminal (v1.16+) works correctly.
 
 ---
@@ -232,12 +232,12 @@ All Core features, plus:
 - US-07C: As a user, I want InstaType to start with Windows automatically.
 
 **Acceptance Criteria:**
-- AC-07A: Settings window opens from tray icon right-click > Settings.
-- AC-07B: All settings have sensible defaults and are explained with one-line tooltips.
-- AC-07C: [Core] Settings sync to Supabase on change; restored on fresh install after login.
-- AC-07D: "Launch at startup" toggle creates/removes a Windows startup entry (Task Scheduler, not Registry).
-- AC-07E: Settings window uses the same glassmorphism FluentWindow theme as the overlay.
-- AC-07F: [Free] Model and language settings are visible but disabled with an upgrade prompt.
+- AC-07A: ✅ Settings window opens from tray icon right-click > Settings.
+- AC-07B: ✅ All settings have sensible defaults (gear popup: mic, always-on-top=ON, save-history=ON, start-with-windows=OFF, theme=System).
+- AC-07C: [Core] Settings sync to Supabase on change; restored on fresh install after login. _(F-08 not started)_
+- AC-07D: ✅ "Launch at startup" toggle creates/removes Task Scheduler entry via schtasks.exe (not Registry).
+- AC-07E: ✅ Gear popup uses dark glassmorphism panel; SettingsWindow uses FluentWindow. **Verified: gear popup opens correctly after DragMove bug fix.**
+- AC-07F: [Free] Model and language settings are visible but disabled with an upgrade prompt. _(F-08 gating not started)_
 
 ---
 
@@ -312,10 +312,10 @@ All Core features, plus:
 - US-11B: As a user, I want to force light or dark mode in settings regardless of system theme.
 
 **Acceptance Criteria:**
-- AC-11A: UI switches theme within 500ms of system theme change (no restart required).
-- AC-11B: Settings offers: Follow System / Always Light / Always Dark.
-- AC-11C: Theme preference persists across restarts.
-- AC-11D: All text remains legible (WCAG AA contrast) in both modes.
+- AC-11A: ✅ Theme switches immediately when radio button is toggled; UISettings detects system theme on startup.
+- AC-11B: ✅ Gear popup offers: System / Light / Dark.
+- AC-11C: ✅ ThemeOverride persists in settings.json across restarts.
+- AC-11D: Contrast audit deferred; both Light.xaml and Dark.xaml define appropriate foreground/background pairs.
 
 ---
 

@@ -38,24 +38,97 @@ public partial class App : Application
 
         await _host.StartAsync();
 
-        // Start hotkey service — listens for double-tap Ctrl via RegisterHotKey.
+        // Load persisted settings before starting any service.
+        var settings = _host.Services.GetRequiredService<ISettingsService>();
+        await settings.LoadAsync();
+
+        // Apply stored theme (replaces the default Dark.xaml if user chose differently).
+        ApplyTheme(settings.Current.ThemeOverride ?? "System");
+
+        // Apply saved microphone device.
+        var audioSvc = _host.Services.GetRequiredService<IAudioCaptureService>();
+        audioSvc.SetDevice(settings.Current.SelectedMicDeviceId);
+
+        // Load Whisper model in background (downloads ggml-base.en.bin if not present).
+        var transcription = _host.Services.GetRequiredService<ITranscriptionService>();
+        _ = transcription.LoadModelAsync("ggml-base.en.bin");
+
+        // Start hotkey service — listens for double-tap Ctrl via WH_KEYBOARD_LL.
         var hotkey = _host.Services.GetRequiredService<IHotkeyService>();
         hotkey.Start();
 
-        // Resolve and position overlay at top-center of primary screen.
+        // Resolve and position overlay.
         _overlay = _host.Services.GetRequiredService<OverlayWindow>();
-        _overlay.Left = (SystemParameters.PrimaryScreenWidth / 2) - (_overlay.Width / 2);
-        _overlay.Top = 12;
+        _overlay.Topmost = settings.Current.AlwaysOnTop;
+
+        if (settings.Current.OverlayLeft >= 0)
+        {
+            _overlay.Left = settings.Current.OverlayLeft;
+            _overlay.Top  = settings.Current.OverlayTop;
+        }
+        else
+        {
+            _overlay.Left = (SystemParameters.PrimaryScreenWidth  / 2) - (_overlay.Width  / 2);
+            _overlay.Top  = 12;
+        }
+
         _overlay.Show();
 
         // System tray icon.
         _trayIcon = new NotifyIcon
         {
-            Icon = SystemIcons.Application,
-            Text = "InstaType",
+            Icon    = SystemIcons.Application,
+            Text    = "InstaType",
             Visible = true,
             ContextMenuStrip = BuildTrayMenu()
         };
+    }
+
+    /// <summary>Applies our custom theme ResourceDictionary and WPF-UI theme.</summary>
+    internal static void ApplyTheme(string theme)
+    {
+        // Resolve "System" to actual Dark/Light based on Windows accent colour.
+        string resolved = theme switch
+        {
+            "Light" => "Light",
+            "Dark"  => "Dark",
+            _       => IsSystemDarkMode() ? "Dark" : "Light"
+        };
+
+        // Swap the custom ResourceDictionary in MergedDictionaries.
+        var merged = Application.Current.Resources.MergedDictionaries;
+        var existing = merged.FirstOrDefault(d =>
+            d.Source?.OriginalString.Contains("/Themes/") == true ||
+            d.Source?.OriginalString.Contains("Themes/")  == true);
+        if (existing != null) merged.Remove(existing);
+        merged.Add(new System.Windows.ResourceDictionary
+        {
+            Source = new Uri($"pack://application:,,,/Themes/{resolved}.xaml")
+        });
+
+        // Apply WPF-UI theme so FluentWindow (SettingsWindow) follows.
+        try
+        {
+            var wpfUiTheme = resolved == "Dark"
+                ? Wpf.Ui.Appearance.ApplicationTheme.Dark
+                : Wpf.Ui.Appearance.ApplicationTheme.Light;
+            Wpf.Ui.Appearance.ApplicationThemeManager.Apply(wpfUiTheme);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Theme] WPF-UI apply failed: {ex.Message}");
+        }
+    }
+
+    internal static bool IsSystemDarkMode()
+    {
+        try
+        {
+            var ui = new global::Windows.UI.ViewManagement.UISettings();
+            var bg = ui.GetColorValue(global::Windows.UI.ViewManagement.UIColorType.Background);
+            return bg.R < 128; // dark background → dark mode
+        }
+        catch { return false; }
     }
 
     private ContextMenuStrip BuildTrayMenu()
@@ -70,10 +143,26 @@ public partial class App : Application
             else _overlay.Show();
         };
 
+        var settings = new ToolStripMenuItem("Settings");
+        settings.Click += (_, _) =>
+        {
+            var win = _host!.Services.GetRequiredService<SettingsWindow>();
+            win.Show();
+        };
+
+        var history = new ToolStripMenuItem("History");
+        history.Click += (_, _) =>
+        {
+            var win = _host!.Services.GetRequiredService<HistoryWindow>();
+            win.Show();
+        };
+
         var exit = new ToolStripMenuItem("Exit");
         exit.Click += (_, _) => Shutdown();
 
         menu.Items.Add(showHide);
+        menu.Items.Add(settings);
+        menu.Items.Add(history);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(exit);
         return menu;
@@ -90,6 +179,7 @@ public partial class App : Application
         services.AddSingleton<IAuthService, AuthService>();
         services.AddSingleton<ISubscriptionService, SubscriptionService>();
         services.AddSingleton<IHistoryService, HistoryService>();
+        services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<SettingsSyncService>();
 
         // ── ViewModels ───────────────────────────────────────────────────────
