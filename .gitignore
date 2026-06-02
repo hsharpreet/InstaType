@@ -1,0 +1,16 @@
+﻿# Build output
+bin/
+obj/
+*.user
+
+# Visual Studio
+.vs/
+*.suo
+*.userosscache
+
+# Vault (not code)
+ClaudeVault/
+
+# Secrets
+appsettings.local.json
+*.pfx
