@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("InstaType")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d82d66e79891de6941139bce037af3c867c6c1ff")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1d90019fb01bb7de3fc4cfbddfb65c9359195a4c")]
 [assembly: System.Reflection.AssemblyProductAttribute("InstaType")]
 [assembly: System.Reflection.AssemblyTitleAttribute("InstaType")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

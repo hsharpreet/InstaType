@@ -23,4 +23,11 @@ public interface ITextInjectionService
     /// a 10 ms inter-character delay so slow target apps receive every event.
     /// </summary>
     Task InjectTextAsync(nint targetWindowHandle, string text);
+
+    /// <summary>
+    /// Sends <paramref name="count"/> Backspace key events, erasing the last N injected
+    /// Unicode code points. Used by AI correction to replace raw transcription with
+    /// the corrected version.
+    /// </summary>
+    Task InjectBackspacesAsync(nint targetWindowHandle, int count);
 }

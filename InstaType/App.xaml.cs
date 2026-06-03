@@ -24,13 +24,23 @@ namespace InstaType;
 public partial class App : Application
 {
     private IHost? _host;
-    private OverlayWindow? _overlay;
+    private OverlayWindow?       _overlay;
+    private CursorOverlayWindow? _cursorOverlay;
     private NotifyIcon? _trayIcon;
 
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+        // Diagnostic trace log — captures all Debug.WriteLine to a readable file.
+        string logPath = System.IO.Path.Combine(
+            System.IO.Path.GetTempPath(), "instatype_diag.log");
+        System.IO.File.WriteAllText(logPath, $"=== InstaType started {DateTime.Now} ===\n");
+        System.Diagnostics.Trace.Listeners.Add(
+            new System.Diagnostics.TextWriterTraceListener(logPath, "DiagFile")
+            { TraceOutputOptions = System.Diagnostics.TraceOptions.None });
+        System.Diagnostics.Trace.AutoFlush = true;
 
         _host = Host.CreateDefaultBuilder()
             .ConfigureServices(ConfigureServices)
@@ -53,6 +63,10 @@ public partial class App : Application
         var transcription = _host.Services.GetRequiredService<ITranscriptionService>();
         _ = transcription.LoadModelAsync("ggml-base.en.bin");
 
+        // Attempt to restore saved Supabase session silently.
+        var auth = _host.Services.GetRequiredService<IAuthService>();
+        _ = auth.TryRestoreSessionAsync();
+
         // Start hotkey service — listens for double-tap Ctrl via WH_KEYBOARD_LL.
         var hotkey = _host.Services.GetRequiredService<IHotkeyService>();
         hotkey.Start();
@@ -73,6 +87,9 @@ public partial class App : Application
         }
 
         _overlay.Show();
+
+        // Cursor bubble — shown/hidden by CursorOverlayWindow itself via IsListening.
+        _cursorOverlay = _host.Services.GetRequiredService<CursorOverlayWindow>();
 
         // System tray icon.
         _trayIcon = new NotifyIcon
@@ -150,6 +167,26 @@ public partial class App : Application
             win.Show();
         };
 
+        var account = new ToolStripMenuItem("Account");
+        account.Click += (_, _) =>
+        {
+            var auth = _host!.Services.GetRequiredService<IAuthService>();
+            if (auth.IsSignedIn)
+            {
+                var result = System.Windows.MessageBox.Show(
+                    $"Signed in as {auth.CurrentUser!.Email}\n\nSign out?",
+                    "InstaType Account",
+                    System.Windows.MessageBoxButton.YesNo);
+                if (result == System.Windows.MessageBoxResult.Yes)
+                    _ = auth.SignOutAsync();
+            }
+            else
+            {
+                var win = _host!.Services.GetRequiredService<LoginWindow>();
+                win.Show();
+            }
+        };
+
         var history = new ToolStripMenuItem("History");
         history.Click += (_, _) =>
         {
@@ -162,6 +199,7 @@ public partial class App : Application
 
         menu.Items.Add(showHide);
         menu.Items.Add(settings);
+        menu.Items.Add(account);
         menu.Items.Add(history);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(exit);
@@ -183,19 +221,23 @@ public partial class App : Application
         services.AddSingleton<SettingsSyncService>();
 
         // ── ViewModels ───────────────────────────────────────────────────────
-        services.AddTransient<OverlayViewModel>();
+        services.AddSingleton<OverlayViewModel>(); // singleton: OverlayWindow + CursorOverlayWindow share one instance
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<HistoryViewModel>();
+        services.AddTransient<LoginViewModel>();
 
         // ── Views ────────────────────────────────────────────────────────────
         services.AddTransient<OverlayWindow>();
         services.AddTransient<SettingsWindow>();
         services.AddTransient<HistoryWindow>();
+        services.AddTransient<LoginWindow>();
+        services.AddSingleton<CursorOverlayWindow>();
     }
 
     protected override async void OnExit(ExitEventArgs e)
     {
         _trayIcon?.Dispose();
+        _cursorOverlay?.Close();
         if (_host is not null)
         {
             await _host.StopAsync(TimeSpan.FromSeconds(3));

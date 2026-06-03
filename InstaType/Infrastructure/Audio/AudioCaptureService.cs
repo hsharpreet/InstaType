@@ -15,18 +15,32 @@ internal sealed class AudioCaptureService : IAudioCaptureService
 {
     public event EventHandler<float[]>? WaveformSample;
     public event EventHandler<float[]>? AudioCaptured;
+    public event EventHandler<float[]>? AudioChunkReady;
     public bool IsRecording { get; private set; }
 
-    // Silence detection: RMS below this is considered silence
-    private const float SilenceThreshold = 0.01f;
+    // Streaming chunk: fire AudioChunkReady every ChunkFrames samples (1.5 s at 16 kHz)
+    private const int ChunkFrames = 24_000;
+    private int _framesSinceLastChunk;
+
+    // Waveform amplitude history for staggered wave motion (ring buffer, 8 recent RMS values)
+    private readonly float[] _ampHistory = new float[8];
+    private int _ampHistoryIdx;
 
     private WaveInEvent? _waveIn;
+    private WaveInEvent? _monitorWaveIn;
     private int _deviceId;
     private readonly List<float> _buffer = new();
     private readonly object _bufferLock = new();
 
-    private CancellationTokenSource? _vadCts;
-    private int _silenceTimeoutSeconds;
+    public bool IsMonitoring { get; private set; }
+
+    public AudioCaptureService()
+    {
+        // Defensive clear — ensures no stale data from previous DI-scoped use
+        lock (_bufferLock) _buffer.Clear();
+        Array.Clear(_ampHistory, 0, _ampHistory.Length);
+        System.Diagnostics.Debug.WriteLine("[Init] AudioCaptureService ready — buffer empty, no stale audio");
+    }
 
     // ── Public API ───────────────────────────────────────────────────────────
 
@@ -43,44 +57,98 @@ internal sealed class AudioCaptureService : IAudioCaptureService
 
     public void SetDevice(int deviceId) => _deviceId = deviceId;
 
+    public Task StartMonitorAsync(int deviceId)
+    {
+        if (IsRecording) return Task.CompletedTask;
+        StopMonitorInternal();
+
+        try
+        {
+            _monitorWaveIn = new WaveInEvent
+            {
+                DeviceNumber = deviceId,
+                WaveFormat = new WaveFormat(16000, 16, 1),
+                BufferMilliseconds = 100
+            };
+            _monitorWaveIn.DataAvailable += OnMonitorDataAvailable;
+            _monitorWaveIn.StartRecording();
+            IsMonitoring = true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Monitor] Start failed: {ex.Message}");
+            _monitorWaveIn?.Dispose();
+            _monitorWaveIn = null;
+        }
+        return Task.CompletedTask;
+    }
+
+    public Task StopMonitorAsync()
+    {
+        StopMonitorInternal();
+        return Task.CompletedTask;
+    }
+
+    private void StopMonitorInternal()
+    {
+        if (_monitorWaveIn is null) return;
+        try { _monitorWaveIn.StopRecording(); } catch { /* ignore if already stopped */ }
+        _monitorWaveIn.Dispose();
+        _monitorWaveIn = null;
+        IsMonitoring = false;
+    }
+
+    private void OnMonitorDataAvailable(object? sender, WaveInEventArgs e)
+    {
+        int sampleCount = e.BytesRecorded / 2;
+        if (sampleCount == 0) return;
+
+        var samples = new float[sampleCount];
+        for (int i = 0; i < sampleCount; i++)
+            samples[i] = BitConverter.ToInt16(e.Buffer, i * 2) / 32768f;
+
+        float rms = ComputeRms(samples);
+        float scaled = ScaleAmplitude(rms);
+
+        // Monitor uses same value for all 5 bars (no history available without recording context)
+        WaveformSample?.Invoke(this, new float[] { scaled, scaled * 0.8f, scaled * 0.6f, scaled * 0.8f, scaled });
+    }
+
     public Task StartAsync(int silenceTimeoutSeconds, CancellationToken cancellationToken = default)
     {
         if (IsRecording) return Task.CompletedTask;
-
-        _silenceTimeoutSeconds = silenceTimeoutSeconds;
+        StopMonitorInternal(); // stop preview before real recording
 
         lock (_bufferLock) _buffer.Clear();
+        _framesSinceLastChunk = 0;
+        Array.Clear(_ampHistory, 0, _ampHistory.Length);
+        _ampHistoryIdx = 0;
 
         _waveIn = new WaveInEvent
         {
-            DeviceNumber = _deviceId,
-            WaveFormat  = new WaveFormat(16000, 16, 1), // 16 kHz, 16-bit, mono
-            BufferMilliseconds = 100                     // ~10 callbacks per second
+            DeviceNumber       = _deviceId,
+            WaveFormat         = new WaveFormat(16000, 16, 1),
+            BufferMilliseconds = 100
         };
         _waveIn.DataAvailable    += OnDataAvailable;
         _waveIn.RecordingStopped += OnRecordingStopped;
         _waveIn.StartRecording();
 
         IsRecording = true;
-
-        // VAD watchdog: start timer that monitors silence
-        _vadCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        _ = RunVadAsync(_vadCts.Token);
-
+        // VAD is intentionally disabled — recording runs until StopAsync() is called.
         return Task.CompletedTask;
     }
 
     public Task StopAsync()
     {
         if (!IsRecording) return Task.CompletedTask;
-        _vadCts?.Cancel();
         _waveIn?.StopRecording(); // triggers OnRecordingStopped asynchronously
         return Task.CompletedTask;
     }
 
     public void Dispose()
     {
-        _vadCts?.Cancel();
+        StopMonitorInternal();
         _waveIn?.Dispose();
         _waveIn = null;
     }
@@ -89,27 +157,39 @@ internal sealed class AudioCaptureService : IAudioCaptureService
 
     private void OnDataAvailable(object? sender, WaveInEventArgs e)
     {
-        int sampleCount = e.BytesRecorded / 2; // 16-bit = 2 bytes per sample
+        int sampleCount = e.BytesRecorded / 2;
         var samples = new float[sampleCount];
-
         for (int i = 0; i < sampleCount; i++)
             samples[i] = BitConverter.ToInt16(e.Buffer, i * 2) / 32768f;
 
+        float[]? chunk = null;
         lock (_bufferLock)
-            _buffer.AddRange(samples);
-
-        // Compute 5 amplitude blocks for the waveform visualiser
-        int blockSize = Math.Max(1, sampleCount / 5);
-        var amplitudes = new float[5];
-        for (int b = 0; b < 5; b++)
         {
-            float peak = 0f;
-            int start = b * blockSize;
-            int end   = Math.Min(start + blockSize, sampleCount);
-            for (int i = start; i < end; i++)
-                peak = Math.Max(peak, Math.Abs(samples[i]));
-            amplitudes[b] = Math.Min(1f, peak * 3f); // boost for visual clarity
+            _buffer.AddRange(samples);
+            _framesSinceLastChunk += sampleCount;
+
+            if (_framesSinceLastChunk >= ChunkFrames)
+            {
+                int start = Math.Max(0, _buffer.Count - ChunkFrames);
+                chunk = _buffer.GetRange(start, _buffer.Count - start).ToArray();
+                _framesSinceLastChunk = 0;
+            }
         }
+
+        if (chunk is not null)
+            AudioChunkReady?.Invoke(this, chunk);
+
+        // Waveform: store scaled RMS in ring buffer, emit staggered values for wave motion
+        float rms    = ComputeRms(samples);
+        float scaled = ScaleAmplitude(rms);
+        _ampHistory[_ampHistoryIdx % _ampHistory.Length] = scaled;
+        _ampHistoryIdx++;
+
+        // bar[0]=current, bar[1]=1-behind, bar[2]=2-behind, bar[3]=3-behind, bar[4]=current mirror
+        var amplitudes = new float[]
+        {
+            GetAmp(0), GetAmp(1), GetAmp(2), GetAmp(3), GetAmp(0)
+        };
         WaveformSample?.Invoke(this, amplitudes);
     }
 
@@ -128,37 +208,25 @@ internal sealed class AudioCaptureService : IAudioCaptureService
         _waveIn = null;
     }
 
-    // ── VAD watchdog ─────────────────────────────────────────────────────────
+    // ── Amplitude helpers ─────────────────────────────────────────────────────
 
-    private async Task RunVadAsync(CancellationToken ct)
+    private static float ComputeRms(float[] samples)
     {
-        var lastSoundTime = DateTime.UtcNow;
+        if (samples.Length == 0) return 0f;
+        float sum = 0f;
+        foreach (float s in samples) sum += s * s;
+        return MathF.Sqrt(sum / samples.Length);
+    }
 
-        while (!ct.IsCancellationRequested)
-        {
-            await Task.Delay(200, ct).ConfigureAwait(false);
+    // 3.5× sensitivity boost + pow(0.6) curve for visual punch
+    private static float ScaleAmplitude(float rms)
+        => MathF.Pow(Math.Min(1f, rms * 3.5f), 0.6f);
 
-            float rms;
-            lock (_bufferLock)
-            {
-                if (_buffer.Count == 0) continue;
-                // Compute RMS over the last 200 ms of samples (3200 at 16 kHz)
-                int tail = Math.Min(3200, _buffer.Count);
-                float sum = 0f;
-                int start = _buffer.Count - tail;
-                for (int i = start; i < _buffer.Count; i++)
-                    sum += _buffer[i] * _buffer[i];
-                rms = MathF.Sqrt(sum / tail);
-            }
-
-            if (rms > SilenceThreshold)
-                lastSoundTime = DateTime.UtcNow;
-
-            if ((DateTime.UtcNow - lastSoundTime).TotalSeconds >= _silenceTimeoutSeconds)
-            {
-                await StopAsync().ConfigureAwait(false);
-                return;
-            }
-        }
+    // Oldest-offset-first read from ring buffer (0 = most recent)
+    private float GetAmp(int offset)
+    {
+        int len = _ampHistory.Length;
+        int idx = (_ampHistoryIdx - 1 - offset % len + len * 2) % len;
+        return _ampHistory[idx];
     }
 }

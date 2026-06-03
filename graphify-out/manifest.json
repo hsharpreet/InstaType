@@ -1,0 +1,187 @@
+{
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\.claude\\settings.local.json": {
+    "mtime": 1780365872.3226178,
+    "ast_hash": "40c027cb8092854fc1f5e7f808214c19",
+    "semantic_hash": "40c027cb8092854fc1f5e7f808214c19"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\App.xaml.cs": {
+    "mtime": 1780411418.670995,
+    "ast_hash": "efcc832a01e1cebcfa65042ffb393d78",
+    "semantic_hash": "efcc832a01e1cebcfa65042ffb393d78"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\AssemblyInfo.cs": {
+    "mtime": 1780346257.4329865,
+    "ast_hash": "8a158a8a488c0dd7d226a06783fc2860",
+    "semantic_hash": "8a158a8a488c0dd7d226a06783fc2860"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Infrastructure\\Audio\\AudioCaptureService.cs": {
+    "mtime": 1780417325.510734,
+    "ast_hash": "fc407db4269e2af9fe9baad81c4c4902",
+    "semantic_hash": "fc407db4269e2af9fe9baad81c4c4902"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Infrastructure\\OpenAI\\AiPostProcessingService.cs": {
+    "mtime": 1780346450.7100308,
+    "ast_hash": "1a5c90eff9dbe80791f1229239c59f8a",
+    "semantic_hash": "1a5c90eff9dbe80791f1229239c59f8a"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Infrastructure\\Storage\\HistoryService.cs": {
+    "mtime": 1780365540.9629889,
+    "ast_hash": "1e6ca44321ea2898fb36abdd4f79f519",
+    "semantic_hash": "1e6ca44321ea2898fb36abdd4f79f519"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Infrastructure\\Storage\\SettingsService.cs": {
+    "mtime": 1780367327.7555842,
+    "ast_hash": "8fa171363cb23c7fc1fdf0e6809c0b1f",
+    "semantic_hash": "8fa171363cb23c7fc1fdf0e6809c0b1f"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Infrastructure\\Subscription\\SubscriptionService.cs": {
+    "mtime": 1780346471.261162,
+    "ast_hash": "f6ef8f292406e432f0a731309c3dfed1",
+    "semantic_hash": "f6ef8f292406e432f0a731309c3dfed1"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Infrastructure\\Supabase\\AuthService.cs": {
+    "mtime": 1780346456.421312,
+    "ast_hash": "b0d5959584740b8113c27dddc5b77b4d",
+    "semantic_hash": "b0d5959584740b8113c27dddc5b77b4d"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Infrastructure\\Supabase\\SettingsSyncService.cs": {
+    "mtime": 1780346460.1557286,
+    "ast_hash": "43671bdae601a05631061caa2a829d4a",
+    "semantic_hash": "43671bdae601a05631061caa2a829d4a"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Infrastructure\\Whisper\\TranscriptionService.cs": {
+    "mtime": 1780365472.090718,
+    "ast_hash": "1dc64ae1b6443b23d636335dbfc505fb",
+    "semantic_hash": "1dc64ae1b6443b23d636335dbfc505fb"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Infrastructure\\Win32\\HotkeyService.cs": {
+    "mtime": 1780364619.2677813,
+    "ast_hash": "e36bd1cc588498052728b9729ee4086c",
+    "semantic_hash": "e36bd1cc588498052728b9729ee4086c"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Infrastructure\\Win32\\NativeMethods.cs": {
+    "mtime": 1780411111.2156298,
+    "ast_hash": "7b51dee3d2c9e536e12023e787fa2c05",
+    "semantic_hash": "7b51dee3d2c9e536e12023e787fa2c05"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Infrastructure\\Win32\\TextInjectionService.cs": {
+    "mtime": 1780410845.6779943,
+    "ast_hash": "a853a21b021b658562922cff8ae16927",
+    "semantic_hash": "a853a21b021b658562922cff8ae16927"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\InstaType.csproj": {
+    "mtime": 1780364648.7252617,
+    "ast_hash": "4d80794b8b5af47faa1ac30bfd88ac61",
+    "semantic_hash": "4d80794b8b5af47faa1ac30bfd88ac61"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Models\\AppSettings.cs": {
+    "mtime": 1780367485.8719606,
+    "ast_hash": "4047515eb6a9f309ba34f8c7f77f6e74",
+    "semantic_hash": "4047515eb6a9f309ba34f8c7f77f6e74"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Models\\MicrophoneDevice.cs": {
+    "mtime": 1780364633.4232607,
+    "ast_hash": "22800d4f183cd9150528390e7718ce8b",
+    "semantic_hash": "22800d4f183cd9150528390e7718ce8b"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Models\\SubscriptionTier.cs": {
+    "mtime": 1780346323.6408453,
+    "ast_hash": "511f6835ec4ac459a64f75b22abd9eac",
+    "semantic_hash": "511f6835ec4ac459a64f75b22abd9eac"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Models\\TranscriptionEntry.cs": {
+    "mtime": 1780346330.203464,
+    "ast_hash": "901693acaa35a141e3fe5fe86d02881f",
+    "semantic_hash": "901693acaa35a141e3fe5fe86d02881f"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Models\\UserProfile.cs": {
+    "mtime": 1780346348.595292,
+    "ast_hash": "5281c0da440a3196c29669dbf5aed0ee",
+    "semantic_hash": "5281c0da440a3196c29669dbf5aed0ee"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Services\\IAiPostProcessingService.cs": {
+    "mtime": 1780346383.735129,
+    "ast_hash": "42088f24cdd92e2aed5d0af925507aa0",
+    "semantic_hash": "42088f24cdd92e2aed5d0af925507aa0"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Services\\IAudioCaptureService.cs": {
+    "mtime": 1780417304.4666529,
+    "ast_hash": "45a6bb1dc36b0792a7924f06b515d1d1",
+    "semantic_hash": "45a6bb1dc36b0792a7924f06b515d1d1"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Services\\IAuthService.cs": {
+    "mtime": 1780346394.0576427,
+    "ast_hash": "553f4eb4b6a6eaee903a57d3587efd99",
+    "semantic_hash": "553f4eb4b6a6eaee903a57d3587efd99"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Services\\IHistoryService.cs": {
+    "mtime": 1780346399.5719247,
+    "ast_hash": "0e154635784920df72a9ff01e0b95ea0",
+    "semantic_hash": "0e154635784920df72a9ff01e0b95ea0"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Services\\IHotkeyService.cs": {
+    "mtime": 1780346361.3427672,
+    "ast_hash": "b434c697e9ec7a3ee295ee16e6daa3b0",
+    "semantic_hash": "b434c697e9ec7a3ee295ee16e6daa3b0"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Services\\ISettingsService.cs": {
+    "mtime": 1780346388.4726064,
+    "ast_hash": "acd35f817a19345c566e737a6eddc73b",
+    "semantic_hash": "acd35f817a19345c566e737a6eddc73b"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Services\\ISubscriptionService.cs": {
+    "mtime": 1780346409.8554945,
+    "ast_hash": "d06360b9a2c8d83d86f697c3c5c7fa14",
+    "semantic_hash": "d06360b9a2c8d83d86f697c3c5c7fa14"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Services\\ITextInjectionService.cs": {
+    "mtime": 1780365486.5407093,
+    "ast_hash": "eac2884430d937ef69156daf8402993b",
+    "semantic_hash": "eac2884430d937ef69156daf8402993b"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Services\\IThemeService.cs": {
+    "mtime": 1780346410.7552803,
+    "ast_hash": "b9843f94258c4f71584f12b38966ee51",
+    "semantic_hash": "b9843f94258c4f71584f12b38966ee51"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Services\\ITranscriptionService.cs": {
+    "mtime": 1780364694.6430888,
+    "ast_hash": "f6dd6de64d592488f642ef6f1544ac79",
+    "semantic_hash": "f6dd6de64d592488f642ef6f1544ac79"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\ViewModels\\HistoryViewModel.cs": {
+    "mtime": 1780346502.5053103,
+    "ast_hash": "54f146fd9e95caec4a9ceb369982fa3b",
+    "semantic_hash": "54f146fd9e95caec4a9ceb369982fa3b"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\ViewModels\\OverlayViewModel.cs": {
+    "mtime": 1780417366.4530835,
+    "ast_hash": "22b9fda9a279bba6e1f979101ece5798",
+    "semantic_hash": "22b9fda9a279bba6e1f979101ece5798"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\ViewModels\\SettingsViewModel.cs": {
+    "mtime": 1780346495.606945,
+    "ast_hash": "f40df5117ee5f13c9f15cd0f62169da1",
+    "semantic_hash": "f40df5117ee5f13c9f15cd0f62169da1"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\ViewModels\\ViewModelBase.cs": {
+    "mtime": 1780346478.6955044,
+    "ast_hash": "ac6aeb274e120b7b93de46f5a2102caf",
+    "semantic_hash": "ac6aeb274e120b7b93de46f5a2102caf"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Views\\HistoryWindow.xaml.cs": {
+    "mtime": 1780417426.3329937,
+    "ast_hash": "619866dd14fa0f05b022633e3eb0b40a",
+    "semantic_hash": "619866dd14fa0f05b022633e3eb0b40a"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Views\\OverlayWindow.xaml.cs": {
+    "mtime": 1780417409.974865,
+    "ast_hash": "0babfb4212492f9713d8f5dedcc91427",
+    "semantic_hash": "0babfb4212492f9713d8f5dedcc91427"
+  },
+  "C:\\Users\\hshar\\OneDrive\\ClaudeCode\\InstaType\\InstaType\\Views\\SettingsWindow.xaml.cs": {
+    "mtime": 1780365691.9179504,
+    "ast_hash": "42461a1b1284aecf98127a605a95ede0",
+    "semantic_hash": "42461a1b1284aecf98127a605a95ede0"
+  }
+}

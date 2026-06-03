@@ -39,9 +39,20 @@ internal sealed class TranscriptionService : ITranscriptionService
         if (!System.IO.File.Exists(modelPath))
             await DownloadModelAsync(modelFileName, modelPath, ct);
 
-        _model   = await global::Whisper.Library.loadModelAsync(modelPath, ct,
-                       global::Whisper.eGpuModelFlags.None, null, null,
-                       global::Whisper.eModelImplementation.GPU);
+        // Try DirectML GPU first; fall back to CPU reference on any failure.
+        try
+        {
+            _model = await global::Whisper.Library.loadModelAsync(modelPath, ct,
+                         global::Whisper.eGpuModelFlags.None, null, null,
+                         global::Whisper.eModelImplementation.GPU);
+        }
+        catch
+        {
+            System.Diagnostics.Debug.WriteLine("[Transcription] GPU load failed — falling back to CPU");
+            _model = await global::Whisper.Library.loadModelAsync(modelPath, ct,
+                         global::Whisper.eGpuModelFlags.None, null, null,
+                         global::Whisper.eModelImplementation.Reference);
+        }
         _context = _model.createContext();
         _mf      = global::Whisper.Library.initMediaFoundation();
 
@@ -85,7 +96,10 @@ internal sealed class TranscriptionService : ITranscriptionService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[Transcription] {ex.Message}");
+            System.Diagnostics.Debug.WriteLine(
+                $"[Transcription] FAILED {ex.GetType().Name}: {ex.Message}");
+            if (ex.InnerException is not null)
+                System.Diagnostics.Debug.WriteLine($"[Transcription] Inner: {ex.InnerException.Message}");
             return string.Empty;
         }
         finally

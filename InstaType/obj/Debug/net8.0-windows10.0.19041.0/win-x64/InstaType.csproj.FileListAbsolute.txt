@@ -101,3 +101,8 @@ C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\bin\Debug\net8.0-windows1
 C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\bin\Debug\net8.0-windows10.0.19041.0\win-x64\NAudio.Wasapi.dll
 C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\bin\Debug\net8.0-windows10.0.19041.0\win-x64\NAudio.WinForms.dll
 C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\bin\Debug\net8.0-windows10.0.19041.0\win-x64\NAudio.WinMM.dll
+C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\obj\Debug\net8.0-windows10.0.19041.0\win-x64\Views\CursorOverlayWindow.baml
+C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\obj\Debug\net8.0-windows10.0.19041.0\win-x64\Views\CursorOverlayWindow.g.cs
+C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\obj\Debug\net8.0-windows10.0.19041.0\win-x64\Views\LoginWindow.baml
+C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\obj\Debug\net8.0-windows10.0.19041.0\win-x64\Views\LoginWindow.g.cs
+C:\Users\hshar\OneDrive\ClaudeCode\InstaType\InstaType\obj\Debug\net8.0-windows10.0.19041.0\win-x64\GeneratedInternalTypeHelper.g.cs

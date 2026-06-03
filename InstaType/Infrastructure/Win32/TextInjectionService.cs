@@ -35,23 +35,78 @@ internal sealed class TextInjectionService : ITextInjectionService
     {
         if (string.IsNullOrEmpty(text)) return;
 
+        int cbSize = Marshal.SizeOf<NativeMethods.INPUT>();
+        System.Diagnostics.Debug.WriteLine(
+            $"[SendInput] INPUT size={cbSize} (must be 40)");
+        System.Diagnostics.Debug.WriteLine(
+            $"[Inject] hwnd={targetWindowHandle} chars={text.Length} cbSize={cbSize}");
+
         // Bring the target window to foreground before injecting so SendInput reaches it.
+        if (targetWindowHandle != 0)
+        {
+            bool fgOk = NativeMethods.SetForegroundWindow(targetWindowHandle);
+            var sb = new System.Text.StringBuilder(256);
+            NativeMethods.GetWindowText(targetWindowHandle, sb, 256);
+            System.Diagnostics.Debug.WriteLine(
+                $"[Inject] SetForegroundWindow={fgOk} title='{sb}'");
+            await Task.Delay(150).ConfigureAwait(false); // extra settle time
+        }
+
+        ReleaseModifiers();
+
+        // Inject one Unicode code-point at a time with a 10 ms delay
+        int totalSent = 0, totalExpected = 0;
+        var enumerator = EnumerateCodePoints(text);
+        while (enumerator.MoveNext())
+        {
+            var inputs = BuildInputsForCodePoint(enumerator.Current);
+            uint sent = NativeMethods.SendInput((uint)inputs.Length, inputs, cbSize);
+            totalSent     += (int)sent;
+            totalExpected += inputs.Length;
+
+            if (sent < (uint)inputs.Length)
+            {
+                int err = Marshal.GetLastWin32Error();
+                System.Diagnostics.Debug.WriteLine(
+                    $"[SendInput] FAIL sent={sent}/{inputs.Length} win32err={err}");
+            }
+
+            await Task.Delay(10).ConfigureAwait(false);
+        }
+
+        System.Diagnostics.Debug.WriteLine(
+            $"[SendInput] total sent={totalSent}/{totalExpected}");
+    }
+
+    public async Task InjectBackspacesAsync(nint targetWindowHandle, int count)
+    {
+        if (count <= 0) return;
+
         if (targetWindowHandle != 0)
         {
             NativeMethods.SetForegroundWindow(targetWindowHandle);
             await Task.Delay(50).ConfigureAwait(false);
         }
 
-        ReleaseModifiers();
+        const ushort VK_BACK = 0x08;
+        int cbSize = Marshal.SizeOf<NativeMethods.INPUT>();
 
-        // Inject one Unicode code-point at a time with a 10 ms delay
-        var enumerator = EnumerateCodePoints(text);
-        while (enumerator.MoveNext())
+        for (int i = 0; i < count; i++)
         {
-            var inputs = BuildInputsForCodePoint(enumerator.Current);
-            NativeMethods.SendInput((uint)inputs.Length, inputs,
-                Marshal.SizeOf<NativeMethods.INPUT>());
-
+            var inputs = new[]
+            {
+                new NativeMethods.INPUT
+                {
+                    type = NativeMethods.INPUT_KEYBOARD,
+                    ki   = new NativeMethods.KEYBDINPUT { wVk = VK_BACK, dwFlags = 0 }
+                },
+                new NativeMethods.INPUT
+                {
+                    type = NativeMethods.INPUT_KEYBOARD,
+                    ki   = new NativeMethods.KEYBDINPUT { wVk = VK_BACK, dwFlags = NativeMethods.KEYEVENTF_KEYUP }
+                },
+            };
+            NativeMethods.SendInput((uint)inputs.Length, inputs, cbSize);
             await Task.Delay(10).ConfigureAwait(false);
         }
     }

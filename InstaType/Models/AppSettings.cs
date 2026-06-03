@@ -9,11 +9,17 @@ public sealed class AppSettings
 {
     // ── Hotkey ──────────────────────────────────────────────────────────────
 
-    /// <summary>Virtual key code of the trigger key (default: VK_CONTROL = 0x11).</summary>
-    public int HotkeyVirtualKey { get; set; } = 0x11;
+    /// <summary>
+    /// Double-tap key used to activate and deactivate the mic.
+    /// Values: "DoubleCtrl" (default) | "DoubleShift" | "DoubleAlt" | "DoubleCapsLock" | "CtrlSpace"
+    /// </summary>
+    public string ActivateHotkey { get; set; } = "DoubleCtrl";
 
-    /// <summary>Whether a double-tap (vs. single press) is required to trigger recording.</summary>
-    public bool HotkeyRequiresDoubleTap { get; set; } = true;
+    /// <summary>
+    /// Key used to stop listening (in addition to the activate hotkey).
+    /// Values: "SameAsActivate" (default) | "SingleCtrl" | "SingleShift" | "Escape"
+    /// </summary>
+    public string StopHotkey { get; set; } = "SameAsActivate";
 
     // ── Whisper ──────────────────────────────────────────────────────────────
 
@@ -35,6 +41,13 @@ public sealed class AppSettings
 
     /// <summary>AI rewrite mode applied after transcription (AI Pro only).</summary>
     public AiRewriteMode DefaultRewriteMode { get; set; } = AiRewriteMode.Standard;
+
+    /// <summary>
+    /// When true, each transcribed chunk is sent to GPT-4o-mini for homophone/mishearing
+    /// correction before injection. Requires InstaType OpenAI key in Windows Credential Manager.
+    /// Off by default.
+    /// </summary>
+    public bool AiCorrectionEnabled { get; set; } = false;
 
     // ── UI ───────────────────────────────────────────────────────────────────
 

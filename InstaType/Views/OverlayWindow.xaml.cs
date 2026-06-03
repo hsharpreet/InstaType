@@ -56,8 +56,11 @@ public partial class OverlayWindow : Window
         var ver = Assembly.GetExecutingAssembly().GetName().Version;
         PopupVersionLabel.Text = $"InstaType v{ver?.Major}.{ver?.Minor}.{ver?.Build}";
 
-        // Subscribe to IsListening changes to start/stop glow.
+        // Subscribe to IsListening/IsMuted changes.
         viewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+        // Stop mic monitoring when the settings popup is dismissed.
+        SettingsPopup.Closed += (_, _) => _viewModel.StopMicMonitor();
     }
 
     // ── Drag to reposition ───────────────────────────────────────────────────
@@ -90,10 +93,26 @@ public partial class OverlayWindow : Window
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != nameof(OverlayViewModel.IsListening)) return;
+        if (e.PropertyName == nameof(OverlayViewModel.IsListening))
+        {
+            if (_viewModel.IsListening) StartGlowAnimation();
+            else StopGlowAnimation();
+        }
+        else if (e.PropertyName == nameof(OverlayViewModel.IsMuted))
+        {
+            UpdateMicButton();
+        }
+    }
 
-        if (_viewModel.IsListening) StartGlowAnimation();
-        else StopGlowAnimation();
+    private void UpdateMicButton()
+    {
+        if (MicButton.Template.FindName("MicEmoji", MicButton) is System.Windows.Controls.TextBlock emoji)
+            emoji.Text = _viewModel.IsMuted ? "🔇" : "🎤";
+
+        if (MicButton.Template.FindName("Bd", MicButton) is Border bd)
+            bd.Background = _viewModel.IsMuted
+                ? new SolidColorBrush(System.Windows.Media.Color.FromArgb(80, 220, 50, 50))
+                : new SolidColorBrush(Colors.Transparent);
     }
 
     private void StartGlowAnimation()
@@ -123,10 +142,39 @@ public partial class OverlayWindow : Window
         _glowBrush.Color = Colors.Transparent;
     }
 
-    // ── Mute button ──────────────────────────────────────────────────────────
+    // ── Mic button (mute toggle) ─────────────────────────────────────────────
 
-    private void MuteButton_Click(object sender, RoutedEventArgs e)
+    private void MicButton_Click(object sender, RoutedEventArgs e)
         => _viewModel.ToggleMute();
+
+    // ── Shortcut ──────────────────────────────────────────────────────────────
+
+    private void ActivateHotkeyCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_suppressSettingsEvents) return;
+        _settings.Current.ActivateHotkey = ActivateHotkeyCombo.SelectedItem?.ToString() switch
+        {
+            "Double Shift"    => "DoubleShift",
+            "Double Alt"      => "DoubleAlt",
+            "Double Caps Lock"=> "DoubleCapsLock",
+            "Ctrl + Space"    => "CtrlSpace",
+            _                 => "DoubleCtrl"
+        };
+        _ = _settings.SaveAsync();
+    }
+
+    private void StopHotkeyCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_suppressSettingsEvents) return;
+        _settings.Current.StopHotkey = StopHotkeyCombo.SelectedItem?.ToString() switch
+        {
+            "Single Ctrl"  => "SingleCtrl",
+            "Single Shift" => "SingleShift",
+            "Escape"       => "Escape",
+            _              => "SameAsActivate"
+        };
+        _ = _settings.SaveAsync();
+    }
 
     // ── Gear button — opens settings popup ───────────────────────────────────
 
@@ -136,6 +184,10 @@ public partial class OverlayWindow : Window
 
         PopulateSettingsPopup();
         SettingsPopup.IsOpen = true;
+
+        // Start live mic preview so bars animate with the selected device
+        if (SettingsMicCombo.SelectedItem is MicrophoneDevice selectedMic)
+            _viewModel.StartMicMonitor(selectedMic.Id);
     }
 
     private void PopulateSettingsPopup()
@@ -153,9 +205,32 @@ public partial class OverlayWindow : Window
                 SettingsMicCombo.SelectedItem = selected;
 
             // Behaviour toggles
+            AiCorrectionCheck.IsChecked      = _settings.Current.AiCorrectionEnabled;
             AlwaysOnTopCheck.IsChecked       = _settings.Current.AlwaysOnTop;
             StartWithWindowsCheck.IsChecked  = _settings.Current.LaunchAtStartup;
             SaveHistoryCheck.IsChecked       = _settings.Current.SaveHistory;
+
+            // Shortcut ComboBoxes
+            ActivateHotkeyCombo.ItemsSource = new[]
+                { "Double Ctrl", "Double Shift", "Double Alt", "Double Caps Lock", "Ctrl + Space" };
+            ActivateHotkeyCombo.SelectedItem = _settings.Current.ActivateHotkey switch
+            {
+                "DoubleShift"    => "Double Shift",
+                "DoubleAlt"      => "Double Alt",
+                "DoubleCapsLock" => "Double Caps Lock",
+                "CtrlSpace"      => "Ctrl + Space",
+                _                => "Double Ctrl"
+            };
+
+            StopHotkeyCombo.ItemsSource = new[]
+                { "Same as activate", "Single Ctrl", "Single Shift", "Escape" };
+            StopHotkeyCombo.SelectedItem = _settings.Current.StopHotkey switch
+            {
+                "SingleCtrl"  => "Single Ctrl",
+                "SingleShift" => "Single Shift",
+                "Escape"      => "Escape",
+                _             => "Same as activate"
+            };
 
             // Theme radio
             string theme = _settings.Current.ThemeOverride ?? "System";
@@ -182,6 +257,13 @@ public partial class OverlayWindow : Window
     }
 
     // ── Behaviour ────────────────────────────────────────────────────────────
+
+    private void AiCorrectionCheck_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_suppressSettingsEvents) return;
+        _settings.Current.AiCorrectionEnabled = AiCorrectionCheck.IsChecked == true;
+        _ = _settings.SaveAsync();
+    }
 
     private void AlwaysOnTopCheck_Changed(object sender, RoutedEventArgs e)
     {

@@ -70,8 +70,10 @@ internal static class NativeMethods
         public nint dwExtraInfo;
     }
 
-    // On 64-bit: type=4 bytes, 4 bytes implicit padding, union at offset 8.
-    [StructLayout(LayoutKind.Explicit)]
+    // On 64-bit Windows: type=4 bytes, 4 bytes padding, union at offset 8.
+    // The union's largest member (MOUSEINPUT) is 32 bytes → total = 8+32 = 40.
+    // Size=40 is explicit because .NET computes 32 from KEYBDINPUT (20 bytes) alone.
+    [StructLayout(LayoutKind.Explicit, Size = 40)]
     internal struct INPUT
     {
         [FieldOffset(0)] public uint type;
@@ -83,8 +85,8 @@ internal static class NativeMethods
     {
         public ushort wVk;
         public ushort wScan;
-        public uint dwFlags;
-        public uint time;
-        public nint dwExtraInfo;
+        public uint   dwFlags;
+        public uint   time;
+        public IntPtr dwExtraInfo; // IntPtr = 8 bytes on 64-bit (not nint, which confuses Marshal)
     }
 }

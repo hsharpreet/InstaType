@@ -3,16 +3,134 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:wpfui="http://schemas.lepo.co/wpfui/2022/xaml"
-    xmlns:vm="clr-namespace:InstaType.ViewModels"
     Title="InstaType History"
-    Width="680" Height="500"
+    Width="720" Height="520"
     WindowStartupLocation="CenterScreen"
     Background="{x:Null}"
-    ExtendsContentIntoTitleBar="True">
+    ExtendsContentIntoTitleBar="True"
+    Loaded="Window_Loaded">
 
-    <!-- TODO (F-06): Add search bar, ListView of TranscriptionEntry, export/clear buttons -->
-    <Grid Margin="16">
-        <TextBlock Text="History — coming soon" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>  <!-- search bar -->
+            <RowDefinition Height="Auto"/>  <!-- column header -->
+            <RowDefinition Height="*"/>     <!-- list -->
+            <RowDefinition Height="Auto"/>  <!-- footer buttons -->
+        </Grid.RowDefinitions>
+
+        <!-- Search bar -->
+        <Border Grid.Row="0" Padding="16 48 16 8">
+            <wpfui:TextBox x:Name="SearchBox"
+                           PlaceholderText="Search transcriptions…"
+                           Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                           HorizontalAlignment="Stretch"/>
+        </Border>
+
+        <!-- Column header -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource SurfaceVariantBrush}"
+                Padding="16 6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="55"/>   <!-- time -->
+                    <ColumnDefinition Width="*"/>    <!-- text -->
+                    <ColumnDefinition Width="50"/>   <!-- words -->
+                    <ColumnDefinition Width="65"/>   <!-- duration -->
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Time"
+                           FontSize="11" FontWeight="SemiBold"
+                           Foreground="{DynamicResource OnSurfaceVariantBrush}"/>
+                <TextBlock Grid.Column="1" Text="Transcription"
+                           FontSize="11" FontWeight="SemiBold"
+                           Foreground="{DynamicResource OnSurfaceVariantBrush}"/>
+                <TextBlock Grid.Column="2" Text="Words"
+                           FontSize="11" FontWeight="SemiBold"
+                           HorizontalAlignment="Right"
+                           Foreground="{DynamicResource OnSurfaceVariantBrush}"/>
+                <TextBlock Grid.Column="3" Text="Duration"
+                           FontSize="11" FontWeight="SemiBold"
+                           HorizontalAlignment="Right"
+                           Foreground="{DynamicResource OnSurfaceVariantBrush}"/>
+            </Grid>
+        </Border>
+
+        <!-- Entry list -->
+        <Grid Grid.Row="2">
+            <!-- Empty state -->
+            <TextBlock Text="No transcriptions yet"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontSize="14" Opacity="0.4"
+                       Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+            <ListView x:Name="EntryList"
+                      ItemsSource="{Binding Entries}"
+                      BorderThickness="0"
+                      Background="Transparent"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Padding" Value="16 6"/>
+                        <Setter Property="BorderThickness" Value="0 0 0 1"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource OverlayBorderBrush}"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="55"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="65"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding RecordedAt, StringFormat={}{0:HH:mm}}"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource OnSurfaceVariantBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding InjectedText}"
+                                       FontSize="12"
+                                       TextTrimming="CharacterEllipsis"
+                                       Foreground="{DynamicResource OnSurfaceBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="8 0"/>
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding InjectedText, Converter={StaticResource WordCountConverter}}"
+                                       FontSize="12"
+                                       HorizontalAlignment="Right"
+                                       Foreground="{DynamicResource OnSurfaceVariantBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="3"
+                                       Text="{Binding AudioDurationSeconds, StringFormat={}{0:F1}s}"
+                                       FontSize="12"
+                                       HorizontalAlignment="Right"
+                                       Foreground="{DynamicResource OnSurfaceVariantBrush}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+
+        <!-- Footer -->
+        <Border Grid.Row="3"
+                BorderThickness="0 1 0 0"
+                BorderBrush="{DynamicResource OverlayBorderBrush}"
+                Padding="16 10">
+            <Grid>
+                <Button Content="Clear All"
+                        HorizontalAlignment="Left"
+                        Padding="16 6"
+                        Click="ClearAllBtn_Click"/>
+                <Button Content="Close"
+                        HorizontalAlignment="Right"
+                        Padding="24 6"
+                        Click="CloseBtn_Click"/>
+            </Grid>
+        </Border>
     </Grid>
 
 </wpfui:FluentWindow>

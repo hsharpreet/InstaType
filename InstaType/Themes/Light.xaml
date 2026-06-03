@@ -13,8 +13,14 @@
     <Color x:Key="OnAccentColor">#FFFFFF</Color>
 
     <!-- ── Overlay ───────────────────────────────────────────────────────── -->
-    <Color x:Key="OverlayBackgroundColor">#CCF8F8F8</Color>
+    <Color x:Key="OverlayBackgroundColor">#CCF0F0F5</Color>
     <Color x:Key="OverlayBorderColor">#33000000</Color>
+
+    <!-- ── Icon colours ──────────────────────────────────────────────────── -->
+    <Color x:Key="MicIconColor">#0066CC</Color>
+    <Color x:Key="GearIconColor">#606070</Color>
+    <Color x:Key="ActiveListenColor">#00AA55</Color>
+    <Color x:Key="MutedColor">#CC2222</Color>
 
     <!-- ── Brushes (use DynamicResource in all XAML) ──────────────────── -->
     <SolidColorBrush x:Key="SurfaceBrush"          Color="{StaticResource SurfaceColor}"/>
@@ -25,5 +31,9 @@
     <SolidColorBrush x:Key="OnAccentBrush"         Color="{StaticResource OnAccentColor}"/>
     <SolidColorBrush x:Key="OverlayBackgroundBrush" Color="{StaticResource OverlayBackgroundColor}"/>
     <SolidColorBrush x:Key="OverlayBorderBrush"    Color="{StaticResource OverlayBorderColor}"/>
+    <SolidColorBrush x:Key="MicIconBrush"  Color="{StaticResource MicIconColor}"/>
+    <SolidColorBrush x:Key="GearIconBrush" Color="{StaticResource GearIconColor}"/>
+    <SolidColorBrush x:Key="ActiveListenBrush"     Color="{StaticResource ActiveListenColor}"/>
+    <SolidColorBrush x:Key="MutedBrush"            Color="{StaticResource MutedColor}"/>
 
 </ResourceDictionary>

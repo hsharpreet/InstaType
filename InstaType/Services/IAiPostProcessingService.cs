@@ -28,4 +28,16 @@ public interface IAiPostProcessingService
         string text,
         IReadOnlyList<string> customVocabulary,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Corrects homophones and obvious mishearings in a single streaming chunk.
+    /// Runs in parallel with the next chunk's recording.
+    /// Returns <paramref name="rawWhisper"/> unchanged on any API failure or timeout.
+    /// </summary>
+    /// <param name="rawWhisper">Raw Whisper output for this chunk.</param>
+    /// <param name="precedingContext">Text already injected in this session (for context).</param>
+    Task<string> CorrectChunkAsync(
+        string rawWhisper,
+        string precedingContext,
+        CancellationToken cancellationToken = default);
 }

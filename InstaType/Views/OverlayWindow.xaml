@@ -27,26 +27,50 @@
                 <ColumnDefinition Width="Auto"/>   <!-- mic icon -->
                 <ColumnDefinition Width="*"/>       <!-- waveform + status -->
                 <ColumnDefinition Width="Auto"/>   <!-- gear button -->
-                <ColumnDefinition Width="Auto"/>   <!-- mute button -->
             </Grid.ColumnDefinitions>
 
-            <!-- ── Microphone icon ── -->
-            <TextBlock Grid.Column="0"
-                       Text="🎤"
-                       FontSize="18"
-                       FontFamily="Segoe UI Emoji"
-                       VerticalAlignment="Center"
-                       Margin="0 0 8 0"/>
+            <!-- ── Microphone icon — click to toggle mute ── -->
+            <Button x:Name="MicButton"
+                    Grid.Column="0"
+                    Width="30" Height="30"
+                    VerticalAlignment="Center"
+                    Cursor="Hand"
+                    Click="MicButton_Click"
+                    ToolTip="Toggle mute"
+                    Margin="0 0 6 0">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" CornerRadius="15" Background="Transparent">
+                            <TextBlock x:Name="MicEmoji"
+                                       Text="🎤"
+                                       FontSize="18"
+                                       FontWeight="Medium"
+                                       FontFamily="Segoe UI Emoji"
+                                       Foreground="{DynamicResource MicIconBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#22FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#44FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
 
             <!-- ── Centre: waveform bars (data-bound ScaleY) + status label ── -->
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
 
-                <Grid Height="26" ClipToBounds="False">
+                <Grid Height="32" ClipToBounds="False">
                     <StackPanel Orientation="Horizontal"
                                 VerticalAlignment="Bottom"
                                 HorizontalAlignment="Center">
 
-                        <Rectangle Width="3" Height="12"
+                        <Rectangle Width="3" MinHeight="4" Height="16"
                                    Fill="#B4E4FF" RadiusX="1.5" RadiusY="1.5"
                                    VerticalAlignment="Bottom" Margin="2 0"
                                    RenderTransformOrigin="0.5,1">
@@ -55,7 +79,7 @@
                             </Rectangle.RenderTransform>
                         </Rectangle>
 
-                        <Rectangle Width="3" Height="18"
+                        <Rectangle Width="3" MinHeight="4" Height="22"
                                    Fill="#B4E4FF" RadiusX="1.5" RadiusY="1.5"
                                    VerticalAlignment="Bottom" Margin="2 0"
                                    RenderTransformOrigin="0.5,1">
@@ -64,7 +88,7 @@
                             </Rectangle.RenderTransform>
                         </Rectangle>
 
-                        <Rectangle Width="3" Height="24"
+                        <Rectangle Width="3" MinHeight="4" Height="28"
                                    Fill="#B4E4FF" RadiusX="1.5" RadiusY="1.5"
                                    VerticalAlignment="Bottom" Margin="2 0"
                                    RenderTransformOrigin="0.5,1">
@@ -73,7 +97,7 @@
                             </Rectangle.RenderTransform>
                         </Rectangle>
 
-                        <Rectangle Width="3" Height="18"
+                        <Rectangle Width="3" MinHeight="4" Height="22"
                                    Fill="#B4E4FF" RadiusX="1.5" RadiusY="1.5"
                                    VerticalAlignment="Bottom" Margin="2 0"
                                    RenderTransformOrigin="0.5,1">
@@ -82,7 +106,7 @@
                             </Rectangle.RenderTransform>
                         </Rectangle>
 
-                        <Rectangle Width="3" Height="12"
+                        <Rectangle Width="3" MinHeight="4" Height="16"
                                    Fill="#B4E4FF" RadiusX="1.5" RadiusY="1.5"
                                    VerticalAlignment="Bottom" Margin="2 0"
                                    RenderTransformOrigin="0.5,1">
@@ -118,7 +142,7 @@
                                        FontSize="11"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
-                                       Foreground="White"/>
+                                       Foreground="{DynamicResource GearIconBrush}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -160,6 +184,11 @@
                             <TextBlock Text="BEHAVIOUR"
                                        Foreground="#77FFFFFF" FontSize="9"
                                        FontWeight="SemiBold" Margin="0 0 0 5"/>
+                            <CheckBox x:Name="AiCorrectionCheck"
+                                      Content="AI correction (GPT-4o-mini)"
+                                      Foreground="White" Margin="0 0 0 5"
+                                      Checked="AiCorrectionCheck_Changed"
+                                      Unchecked="AiCorrectionCheck_Changed"/>
                             <CheckBox x:Name="AlwaysOnTopCheck"
                                       Content="Always on top"
                                       Foreground="White" Margin="0 0 0 5"
@@ -175,6 +204,23 @@
                                       Foreground="White" Margin="0 0 0 12"
                                       Checked="SaveHistoryCheck_Changed"
                                       Unchecked="SaveHistoryCheck_Changed"/>
+
+                            <!-- SHORTCUT -->
+                            <TextBlock Text="SHORTCUT"
+                                       Foreground="#77FFFFFF" FontSize="9"
+                                       FontWeight="SemiBold" Margin="0 0 0 5"/>
+                            <TextBlock Text="Activate / deactivate mic:"
+                                       Foreground="White" FontSize="11" Margin="0 0 0 3"/>
+                            <ComboBox x:Name="ActivateHotkeyCombo"
+                                      HorizontalAlignment="Stretch"
+                                      Margin="0 0 0 6"
+                                      SelectionChanged="ActivateHotkeyCombo_SelectionChanged"/>
+                            <TextBlock Text="Stop listening:"
+                                       Foreground="White" FontSize="11" Margin="0 0 0 3"/>
+                            <ComboBox x:Name="StopHotkeyCombo"
+                                      HorizontalAlignment="Stretch"
+                                      Margin="0 0 0 12"
+                                      SelectionChanged="StopHotkeyCombo_SelectionChanged"/>
 
                             <!-- APPEARANCE -->
                             <TextBlock Text="APPEARANCE"
@@ -236,34 +282,7 @@
                 </Border>
             </Popup>
 
-            <!-- ── Mute button ── -->
-            <Button x:Name="MuteButton"
-                    Grid.Column="3"
-                    Width="28" Height="28"
-                    VerticalAlignment="Center"
-                    Cursor="Hand"
-                    Click="MuteButton_Click"
-                    ToolTip="Stop listening">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" CornerRadius="14" Background="#33FFFFFF">
-                            <TextBlock Text="🔇"
-                                       FontSize="12"
-                                       FontFamily="Segoe UI Emoji"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#55FFFFFF"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#77FFFFFF"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
+            <!-- Speaker/mute button removed — double-tap hotkey controls start/stop -->
 
         </Grid>
     </Border>

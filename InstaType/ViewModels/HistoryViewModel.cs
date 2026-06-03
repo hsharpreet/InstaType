@@ -5,39 +5,61 @@ namespace InstaType.ViewModels;
 
 /// <summary>
 /// ViewModel for <c>HistoryWindow</c>.
-/// Loads transcription history from <see cref="IHistoryService"/>.
-/// Supports keyword search (Core+) and CSV export (Core+).
-/// Free tier shows a stub with the last 10 in-memory entries and an upgrade prompt.
+/// Loads transcription history from <see cref="IHistoryService"/>, newest first.
+/// Supports live keyword search and clear-all.
 /// </summary>
 public sealed class HistoryViewModel : ViewModelBase
 {
+    private readonly IHistoryService _history;
+
     private IReadOnlyList<TranscriptionEntry> _entries = [];
     private string _searchQuery = string.Empty;
-    private bool _isLoading;
+    private bool   _isLoading;
 
-    /// <summary>Entries currently shown in the list, filtered by <see cref="SearchQuery"/>.</summary>
     public IReadOnlyList<TranscriptionEntry> Entries
     {
         get => _entries;
         private set => SetProperty(ref _entries, value);
     }
 
-    /// <summary>Live search filter; triggers a filtered reload on change.</summary>
     public string SearchQuery
     {
         get => _searchQuery;
         set { if (SetProperty(ref _searchQuery, value)) _ = ReloadAsync(); }
     }
 
-    /// <summary>True while an async load or search is in progress.</summary>
     public bool IsLoading
     {
         get => _isLoading;
         private set => SetProperty(ref _isLoading, value);
     }
 
-    // TODO (F-06): Inject IHistoryService, ISubscriptionService. Implement ReloadAsync,
-    // ExportCommand (calls ExportToCsvAsync with SaveFileDialog path), ClearCommand.
+    public bool IsEmpty => _entries.Count == 0;
 
-    private Task ReloadAsync() => Task.CompletedTask;
+    public HistoryViewModel(IHistoryService historyService)
+    {
+        _history = historyService;
+    }
+
+    public async Task LoadAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            Entries = string.IsNullOrWhiteSpace(_searchQuery)
+                ? await _history.GetRecentAsync(500)
+                : await _history.SearchAsync(_searchQuery.Trim());
+            OnPropertyChanged(nameof(IsEmpty));
+        }
+        finally { IsLoading = false; }
+    }
+
+    public async Task ClearAllAsync()
+    {
+        await _history.ClearAsync();
+        Entries = [];
+        OnPropertyChanged(nameof(IsEmpty));
+    }
+
+    private Task ReloadAsync() => LoadAsync();
 }

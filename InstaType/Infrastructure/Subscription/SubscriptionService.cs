@@ -19,7 +19,9 @@ internal sealed class SubscriptionService : ISubscriptionService
     public bool IsDailyLimitReached { get; private set; }
     public int DailyTranscriptionsRemaining { get; private set; } = 50;
 
+#pragma warning disable CS0067  // raised in RefreshAsync once implemented
     public event EventHandler<SubscriptionTier>? TierChanged;
+#pragma warning restore CS0067
 
     public bool HasAccess(SubscriptionTier tier) => CurrentTier >= tier;
 
